@@ -93,12 +93,16 @@
 					<th>Colours:</th>
 					<td>
 						<select id="colourSet">
-							<option value="random" selected>Random</option>
+							<option value="random" selected>Random Set</option>
+							<option value="procgen">Random</option>
 							<option value="" disabled>--------</option>
 							<!--<option value="autumn">Autumn</option>-->
 							<option value="forest">Forest</option>
+							<option value="grey">Grey</option>
+							<option value="miami">Miami</option>
 							<option value="mondrian">Mondrian</option>
 							<option value="monochrome">Mono</option>
+							<option value="mood">Mood</option>
 							<option value="nautical">Nautical</option>
 							<option value="rust">Rust</option>
 							<option value="state">State</option>
@@ -131,6 +135,7 @@
 
 			const lines = 4;
 			var colours = ['black', 'white'];
+			var procgen = [];
 
 			setInterval(function () { colourHeading(); }, 60 * 1000);
 			d3.select('h1').style('display', 'none');
@@ -173,17 +178,26 @@
 
             function setRandomColours(colourSet) {
                 switch (colourSet) {
+                	case 'procgen':
+                		colours = getRandomColours(procgen);
+                		break;
                     case 'autumn':
                         colours = getRandomColours(['#AD0303', '#040D66', '#E48F0D', '#DCBDAB']);
                         break;
                     case 'beach':
                         colours = getRandomColours(['#0477BF', '#F2B705', '#F2E2C4', '#261D11', '#A6290D']);
                         break;
+                    case 'miami':
+                        colours = getRandomColours(['#18C0EF', '#F14F7B', '#F7AA1C']);
+                        break;
                     case 'vintage':
                         colours = getRandomColours(['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA']);
                         break;
                     case 'nautical':
                         colours = getRandomColours(['#DBD0C4', '#9D251B', '#273658']);
+                        break;
+                    case 'mood':
+                        colours = getRandomColours(['#C3B6A9', '#254769', '#1B1C3B']);
                         break;
                     case 'forest':
                     	colours = getRandomColours(['#606c38', '#283618', '#dda15e', '#bc6c25']);
@@ -194,13 +208,16 @@
                     case 'mondrian':
                     	colours = getRandomColours(['#FAC901', '#225095', '#DD0100', '#fff']);
                     	break;
+                    case 'grey':
+                        colours = colours = getRandomColours(['#222', '#777', '#ccc']);
+                        break;
                     case 'rust':
                         colours = getRandomColours(['#D52439', '#110C1A', '#EACBAA']);
                         break;
                     case 'state':
                         colours = ['#2C2C29'];
                         if (Math.random() > 0.5) {
-                            colours.push('#D24C32');
+                            colours.push('#B24C32');
                         } else {
                             colours.push('#628696');
                         }
@@ -209,7 +226,7 @@
                         colours = getRandomColours(['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496']);
 						break;
                     default:
-                        colours = ['black', 'white'];
+                        colours = ['white', 'black'];
                         break;
                 }
 
@@ -227,7 +244,53 @@
                 return [first, second];
             }
 
+            function makeRandomColourScheme() {
+            	procgen = [];
+	            var hue = ~~(360 * Math.random());
+	            var sat = ~~(30 + (60 * Math.random()));
+	            var bri = ~~(35 + (30 * Math.random()));
+	            if (Math.random() > 0.5) {
+	            	// light and dark
+					if (Math.random() > 0.5) {
+            			procgen.push('hsl(' + hue + ', ' + sat + '%, 5%)');
+            		}
+		            procgen.push('hsl(' + hue + ', ' + sat + '%, 25%)');
+		            if (Math.random() > 0.5) {
+		            	procgen.push('hsl(' + hue + ', ' + sat + '%, 50%)');
+		            }
+            		procgen.push('hsl(' + hue + ', ' + sat + '%, 75%)');
+            		if (Math.random() > 0.5) {
+            			procgen.push('hsl(' + hue + ', ' + sat + '%, 95%)');
+            		}
+	            } else {
+	            	// contrast
+	            	switch (~~(Math.random() * 3)) {
+	            		case 0: // random
+		            		procgen.push('hsl(' + hue + ', ' + sat + '%, ' + bri + '%)');
+		            		procgen.push('hsl(' + ((hue + 60 + ~~(Math.random() * 240)) % 360) + ', ' + sat + '%, ' + bri + '%)');
+	            			break;
+	            		case 1: // triple offset
+		            		procgen.push('hsl(' + hue + ', ' + sat + '%, ' + bri + '%)');
+			            	procgen.push('hsl(' + ((hue + 120) % 360) + ', ' + sat + '%, ' + bri + '%)');
+	            			procgen.push('hsl(' + ((hue + 240) % 360) + ', ' + sat + '%, ' + bri + '%)');
+	            			break;
+	            		case 2: // double offset
+	            			procgen.push('hsl(' + hue + ', ' + sat + '%, ' + bri + '%)');
+			            	procgen.push('hsl(' + ((hue + 180) % 360) + ', ' + sat + '%, ' + bri + '%)');
+	            			break;
+	            	}
+            		if (Math.random() > 0.5) {
+            			procgen.push('white');
+            			procgen.push('black');
+            		} else {
+            			procgen.push(Math.random() > 0.5 ? 'white' : 'black');
+            		}
+	            }
+            }
+
 			function createPattern() {
+
+				makeRandomColourScheme();
 
 				d3.selectAll('svg').remove();
 
@@ -290,7 +353,7 @@
 				}
 
 				if (colourSet == 'random' || colourSet.length == 0) {
-					var sets = ['forest', 'mondrian', 'monochrome', 'nautical', 'rust', 'state', 'sunset', 'vampire', 'vintage'];
+					var sets = ['forest', 'grey', 'mondrian', 'mood', 'monochrome', 'nautical', 'rust', 'state', 'sunset', 'vampire', 'vintage'];
 					colourSet = sets[~~(Math.random() * sets.length)];
 				}
 
