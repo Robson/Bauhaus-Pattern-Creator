@@ -1,0 +1,182 @@
+/***** PAGE *****/
+
+html {
+	background: #fff;
+	color: #fff;	
+	text-align: center;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: rubik, sans-serif;
+}
+
+p {
+	margin-top: 0;
+	padding: 5px;
+}
+
+/***** HEADING *****/
+
+#initial,
+#heading {
+	padding: 0 5px 5px 5px;
+	margin: 36px auto 20px !important;
+	font: normal 35px 'roboto slab', georgia, serif;
+	font-weight: 500;
+	text-align: center;
+	border-spacing: 0;
+	line-height: 35px;
+}
+
+#heading .x {
+	background: white;
+	color: black;
+}
+
+#initial td,
+#heading td {
+	text-align: center !important;
+	padding: 2px 5px;
+	background: black;
+	color: white;
+}
+
+#about {
+	margin: 25px 5px;
+}
+
+/***** LINKS *****/
+
+a {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 2px solid white;
+}
+
+a:hover {
+	border-bottom: 2px dotted white;
+}
+
+/***** INPUT *****/
+
+#options {
+	background: #000;
+	width: 300px;
+	height: 100%;
+	position: fixed;
+	top: 0;
+}
+
+#options table {
+	margin: 0 auto;
+}
+
+#options th {
+	font-weight: normal;
+	text-align: right;
+	height: 1.8em;
+}
+
+#options td {
+	text-align: left;
+}
+
+input[type="button"] {
+	margin-top: 25px;
+	font-size: 125%;
+	font-weight: bold;
+	border: 3px solid #fff;
+	border-radius: 6px;
+	background: #fff;
+	cursor: pointer;
+}
+
+input[type="number"] {
+	max-width: 50px;
+	border: 3px solid #fff;
+	border-radius: 4px;
+	padding: 2px;
+	margin: 2px;
+}
+
+select {
+	border: 3px solid #fff;
+	border-radius: 4px;
+	background: white;
+	padding: 2px;
+	margin: 2px;
+}
+
+#download {
+	margin-top: 10px;
+}
+
+/***** OUTPUT *****/
+
+#output {
+	max-height: 100vh;
+	margin: 0 0 0 300px;
+	padding: 0;
+	overflow: auto;
+	text-align: left;	
+}
+
+svg {
+	margin: 0;
+	border: 3vh solid white;
+}
+
+/***** CONTROLS *****/
+
+select, input {
+	font-family: rubik, sans-serif;
+	max-width: 100%;
+}
+
+/***** FOOTER *****/
+
+#footer {
+	background: black;
+	padding: 5px 5px 25px 5px;
+}
+
+/***** SMALL SCREEN COMPATIBILITY *****/
+
+.mobile_yes {
+	display: none;
+}
+
+@media (max-width: 795px) {
+
+	html {
+		background: black;
+	}
+
+	.mobile_no {
+		display: none;
+	}
+
+	.mobile_yes {
+		display: block;
+	}
+
+	#options {
+		width: auto;
+		position: static;
+		height: auto;
+		padding: 30px 0;
+	}
+
+	#output {
+		height: auto;
+		max-height: none;
+		margin: 0 auto;
+		display: block;
+		left: 0;
+		overflow-x: scroll;
+		overflow-y: visible;
+		background: white;
+	}
+}

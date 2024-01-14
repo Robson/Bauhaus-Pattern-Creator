@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<!--<script async src="https://www.googletagmanager.com/gtag/js?id=G-2E561F2422"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		  gtag('config', 'G-2E561F2422');
+		</script>-->
+		<!--
+		************************************************
+		The script above is for google analytics.
+		You'll want to remove that if you use this page.
+		************************************************
+		-->
+		<title>Bauhaus Pattern Creator</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<link rel="preconnect" href="https://fonts.gstatic.com">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik&display=swap">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap">
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+
+		<div id="options">
+
+			<h1>Bauhaus<br />Pattern<br />Creator</h1>
+
+			<table id="initial">
+				<tr><td>Bauhaus</td></tr>
+				<tr><td>Pattern</td></tr>
+				<tr><td>Creator</td></tr>
+			</table>
+
+			<table id="heading">
+				<tr><td>B</td><td>a</td><td>u</td><td>h</td><td>a</td><td>u</td><td>s</td></tr>
+				<tr><td>P</td><td>a</td><td>t</td><td>t</td><td>e</td><td>r</td><td>n</td></tr>
+				<tr><td>C</td><td>r</td><td>e</td><td>a</td><td>t</td><td>o</td><td>r</td></tr>
+			</table>
+
+			<table id="sizes">
+				<tr>
+					<th>Rows:</th>
+					<td><input type="number" value="6" id="rows" /></td>
+				</tr>
+				<tr>
+					<th>Columns:</th>
+					<td><input type="number" value="6" id="columns" /></td>
+				</tr>
+				<tr>
+					<th>Cell Size:</th>
+					<td><input type="number" value="100" id="unitSize" /></td>
+				</tr>
+				<tr>
+					<th>Gap Size:</th>
+					<td><input type="number" value="0" id="gapSize" /></td>
+				</tr>
+				<tr>
+					<th>Multiple Sizes:</th>
+					<td>
+						<select id="maxScale">
+							<option value="1">No</option>
+							<option value="2" selected="selected">Max 2x2</option>
+							<option value="4">Max 4x4</option>
+							<option value="8">Max 8x8</option>
+							<option value="16">Max 16x16</option>
+							<option value="32">Max 32x32</option>
+							<option value="64">Max 64x64</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>Patterns:</th>
+					<td>
+						<select id="patternSet">
+							<option value="everything" selected>Everything</option>
+							<option value="" disabled>--------</option>
+							<option value="curves">Curves</option>
+							<option value="diagonals">Diagonals</option>
+							<option value="lines">Lines</option>
+							<option value="straights">Straights</option>
+							<option value="triangles">Triangles</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>Colours:</th>
+					<td>
+						<select id="colourSet">
+							<option value="random" selected>Random</option>
+							<option value="" disabled>--------</option>
+							<!--<option value="autumn">Autumn</option>-->
+							<option value="forest">Forest</option>
+							<option value="mondrian">Mondrian</option>
+							<option value="monochrome">Mono</option>
+							<option value="nautical">Nautical</option>
+							<option value="rust">Rust</option>
+							<option value="state">State</option>
+							<option value="sunset">Sunset</option>
+							<option value="vampire">Vampire</option>
+							<option value="vintage">Vintage</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+
+			<input type="button" value="Create" onclick="createPattern()" />
+
+			<div class="mobile_no">
+				<input type="button" value="Download Image" id="download" onclick="downloadImage()" /><br />
+				<p id="about">Written by <a href="https://robson.plus/">Robson</a>.</p>
+			</div>
+		</div>
+
+		<div id="output"></div>
+
+		<div class="mobile_yes">
+			<div id="footer">
+				<input type="button" value="Download Image" id="downloadMobile" onclick="downloadImage()" /><br />
+				<p id="about"><a href="https://github.com/Robson/Bauhaus-Pattern-Generator">Code</a> by <a href="https://robson.plus/">Robson</a>.</p>
+			</div>
+		</div>
+
+		<script>
+
+			const lines = 4;
+			var colours = ['black', 'white'];
+
+			setInterval(function () { colourHeading(); }, 60 * 1000);
+			d3.select('h1').style('display', 'none');
+			d3.select('#download').style('display', 'none');
+			d3.select('#footer').style('display', 'none');
+			d3.select('#heading').style('display', 'none');
+
+			function colourHeading() {
+				d3.selectAll('#heading td').classed('x', function () { return Math.random() > 0.5 });
+				d3.select('h1').style('display', 'none');
+				d3.select('#initial').style('display', 'none');
+				d3.select('#heading').style('display', null);
+			}
+
+			function getDateTimeFilename() {
+				var filename = (new Date()).toISOString();
+				console.log(filename);
+				filename = filename.split('.')[0];
+				filename = filename
+					.replace(':', '-')
+					.replace(':', '-')
+					.replace('T', ' ');
+				return filename;
+			}
+
+			function downloadImage() {
+				var svgEl = document.getElementById("render");
+				d3.select('#render').attr("xmlns", "http://www.w3.org/2000/svg");
+				var svgData = new XMLSerializer().serializeToString(svgEl);
+				var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+				var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
+				var svgUrl = URL.createObjectURL(svgBlob);
+				var downloadLink = document.createElement("a");
+				downloadLink.href = svgUrl;
+				downloadLink.download = 'BPC ' + getDateTimeFilename() + '.svg';
+				document.body.appendChild(downloadLink);
+				downloadLink.click();
+				document.body.removeChild(downloadLink);
+			}
+
+            function setRandomColours(colourSet) {
+                switch (colourSet) {
+                    case 'autumn':
+                        colours = getRandomColours(['#AD0303', '#040D66', '#E48F0D', '#DCBDAB']);
+                        break;
+                    case 'beach':
+                        colours = getRandomColours(['#0477BF', '#F2B705', '#F2E2C4', '#261D11', '#A6290D']);
+                        break;
+                    case 'vintage':
+                        colours = getRandomColours(['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA']);
+                        break;
+                    case 'nautical':
+                        colours = getRandomColours(['#DBD0C4', '#9D251B', '#273658']);
+                        break;
+                    case 'forest':
+                    	colours = getRandomColours(['#606c38', '#283618', '#dda15e', '#bc6c25']);
+                    	break;
+                    case 'vampire':
+                    	colours = getRandomColours(['#9B2525', '#550B02', '#EFC5C6', '#0A0000']);
+                    	break;
+                    case 'mondrian':
+                    	colours = getRandomColours(['#FAC901', '#225095', '#DD0100', '#fff']);
+                    	break;
+                    case 'rust':
+                        colours = getRandomColours(['#D52439', '#110C1A', '#EACBAA']);
+                        break;
+                    case 'state':
+                        colours = ['#2C2C29'];
+                        if (Math.random() > 0.5) {
+                            colours.push('#D24C32');
+                        } else {
+                            colours.push('#628696');
+                        }
+                        break;
+                    case 'sunset':
+                        colours = getRandomColours(['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496']);
+						break;
+                    default:
+                        colours = ['black', 'white'];
+                        break;
+                }
+
+                if (Math.random() > 0.5) {
+                    [colours[0], colours[1]] = [colours[1], colours[0]];
+                }
+			}
+
+            function getRandomColours(candidates) {
+                var first = '', second = '';
+                do {
+                    first = candidates[~~(Math.random() * candidates.length)];
+                    second = candidates[~~(Math.random() * candidates.length)];
+                } while (first == second);
+                return [first, second];
+            }
+
+			function createPattern() {
+
+				d3.selectAll('svg').remove();
+
+				var rows = +d3.select('#rows').property('value');
+				var columns = +d3.select('#columns').property('value');
+				var unitSize = +d3.select('#unitSize').property('value');
+				var gapSize = +d3.select('#gapSize').property('value');
+				var patternSet = d3.select('#patternSet').property('value');
+				var colourSet = d3.select('#colourSet').property('value');
+				var maxScale = +d3.select('#maxScale').property('value');
+
+				var outside = d3.select('#output').append('svg');
+				outside.attr('xmlns', 'http://www.w3.org/2000/svg');
+				outside.attr('shape-rxendering', 'geometricPrecision');
+				outside.attr('id', 'render');
+				outside.attr('width', columns * (unitSize + gapSize) + 'px');
+				outside.attr('height', rows * (unitSize + gapSize) + 'px');
+				outside.append('defs');
+
+				outside
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', columns * unitSize + (columns - 1) * gapSize)
+					.attr('height', rows * unitSize + (rows - 1) * gapSize);
+
+				var grid = [];
+				for (var a = 0; a < rows; a++) {
+					grid[a] = [];
+					for (var b = 0; b < columns; b++) {
+						grid[a].push(1);
+					}
+				}
+				var sizes = [256, 128, 64, 32, 16, 8, 4, 2];
+				for (var size of sizes) {
+					if (size <= maxScale) {
+						if (rows >= size && columns >= size) {
+							for (var a = 0; a < 50; a++) {
+								var checkR = ~~(Math.random() * (1 + rows - size));
+								var checkC = ~~(Math.random() * (1 + columns - size));
+								var success = true;
+								for (var r = checkR; r < checkR + size; r++) {
+									for (var c = checkC; c < checkC + size; c++) {
+										if (grid[r][c] != 1) {
+											success = false;
+										}
+									}
+								}
+								if (success) {
+									for (var r = checkR; r < checkR + size; r++) {
+										for (var c = checkC; c < checkC + size; c++) {
+											grid[r][c] = '0';
+										}
+									}
+									grid[checkR][checkC] = size;
+								}
+							}
+						}
+					}
+				}
+
+				if (colourSet == 'random' || colourSet.length == 0) {
+					var sets = ['forest', 'mondrian', 'monochrome', 'nautical', 'rust', 'state', 'sunset', 'vampire', 'vintage'];
+					colourSet = sets[~~(Math.random() * sets.length)];
+				}
+
+				for (var a = 0; a < columns; a++) {
+					for (var b = 0; b < rows; b++) {
+						if (grid[b][a] > 0) {
+							var extraLength = 0;
+							switch (grid[b][a]) {
+								case 2:  extraLength = gapSize * 0.5; break;
+                                case 4:  extraLength = gapSize * 0.75; break;
+                                case 8:  extraLength = gapSize * 0.875; break;
+								case 16: extraLength = gapSize * 0.94; break;
+								case 32: extraLength = gapSize * 0.97; break;
+                                case 64: extraLength = gapSize * 0.985; break;
+							}
+
+							createRandomPattern(
+								colourSet,
+								grid[b][a],
+								patternSet,
+								outside,
+								a * (unitSize + gapSize),
+								b * (unitSize + gapSize),
+								unitSize + extraLength);
+						}
+					}
+				}
+
+				switch (colourSet) {
+					case 'state':
+						outside.attr('fill', '#2C2C29');
+						break;
+					default:
+						outside.attr('fill', colours[0]);
+						break;
+				}
+
+				d3.select('#download').style('display', null);
+				d3.select('#about').style('display', null);
+				d3.select('#footer').style('display', null);
+			}
+
+			function createRandomPattern(colourSet, scale, patternSet, svg, x, y, s, overwrite = false) {
+
+				setRandomColours(colourSet);
+
+				var available = [
+					createPatternCircleNormal,
+					createPatternCircleLarge,
+					createPatternCircleLargeRing,
+					//createPatternCircleQuad,
+					createPatternCircleOpposites,
+					createPatternSquareNormal,
+					createPatternSquareGrid,
+					createPatternSquareOpposites,
+					createPatternRectangle,
+					createPatternCornerTriangle,
+					createPatternTriangleSideNormal,
+					createPatternTriangleSideDouble,
+					createPatternTriangleSideDoubleRotate,
+					createPatternTriangleQuad,
+					createPatternArrow,
+					createPatternDiamondNormal,
+					createPatternDiamondLarge,
+					createPatternDiamondRing,
+					createPatternArcSolid,
+					createPatternArcRing,
+					createPatternArcRingTwin,
+					//createPatternArcQuartersAll,
+					createPatternArcQuartersOpposites,
+					createPatternLinesStraight,
+					createPatternLinesDiagonal,
+                    createPatternLinesDiagonalPair,
+					createPatternLinesArc,
+				];
+
+				switch (patternSet) {
+					case 'curves':
+						available = [
+							createPatternCircleNormal,
+							createPatternCircleLarge,
+							createPatternCircleLargeRing,
+							createPatternCircleOpposites,
+							//createPatternCircleQuad,
+							createPatternArcSolid,
+							createPatternArcRing,
+							createPatternArcRingTwin,
+							//createPatternArcQuartersAll,
+							createPatternArcQuartersOpposites,
+							createPatternLinesArc,
+						];
+						break;
+                    case 'diagonals':
+                        available = [
+                            createPatternCornerTriangle,
+                            createPatternTriangleSideNormal,
+                            createPatternTriangleSideDouble,
+                            createPatternTriangleSideDoubleRotate,
+                            createPatternTriangleQuad,
+                            createPatternArrow,
+                            createPatternDiamondNormal,
+                            createPatternDiamondLarge,
+                            createPatternDiamondRing,
+                            //createPatternLinesDiagonal,
+                            createPatternLinesDiagonalPair,
+                        ];
+                        break;
+                    case 'lines':
+                        available = [
+                            createPatternLinesStraight,
+                            createPatternLinesDiagonal,
+                            createPatternLinesArc,
+                        ];
+                        break;
+					case 'straights':
+						available = [
+							createPatternSquareNormal,
+							createPatternSquareGrid,
+							createPatternSquareOpposites,
+							createPatternRectangle,
+							createPatternLinesStraight,
+						];
+						break;
+                    case 'triangles':
+                        available = [
+                            createPatternCornerTriangle,
+                            //createPatternTriangleSideNormal,
+                            createPatternTriangleSideDouble,
+                            createPatternTriangleSideDoubleRotate,
+                            createPatternTriangleQuad,
+                        ];
+                        break;
+				}
+
+				var chosen = available[~~(Math.random() * available.length)];
+
+				var g;
+				if (overwrite) {
+					g = svg;
+				} else {
+					var id = '_' + x + '_' + y;
+					var defs = svg.select('defs');
+					defs
+						.append('clipPath')
+						.attr('id', 'clip' + id)
+						.append('rect')
+						.attr('x', 0)
+						.attr('y', 0)
+						.attr('width', s)
+						.attr('height', s);
+					g = svg.append('g');
+					g.attr('id', 'unit' + id);
+					g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
+					g.attr('clip-path', 'url(#clip' + id + ')');
+					g.on('click', function() {
+						d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
+						createRandomPattern(colourSet, scale, patternSet, g, x, y, s, overwrite = true);
+						d3.event.stopPropagation();
+					});
+				}
+
+				chosen(g, +s);
+			}
+
+			function createPatternCircleNormal(g, s) {
+				createPatternCircle(g, s, large = false, ring = false);
+			}
+
+			function createPatternCircleLarge(g, s) {
+				createPatternCircle(g, s, large = true, ring = false);
+			}
+
+			function createPatternCircleLargeRing(g, s) {
+				createPatternCircle(g, s, large = true, ring = true);
+			}
+
+			function createPatternCircle(g, s, large = false, ring = false) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', colours[0]);
+				fill = colours[1];
+				g
+					.append('circle')
+					.attr('cx', s / 2)
+					.attr('cy', s / 2)
+					.attr('r', s * (ring || large ? 0.5 : 0.25))
+					.attr('fill', fill)
+				if (ring) {
+					fill = fill == colours[1] ? colours[0] : colours[1];
+					g
+						.append('circle')
+						.attr('cx', s / 2)
+						.attr('cy', s / 2)
+						.attr('r', s * 0.25)
+						.attr('fill', fill)
+				}
+			}
+
+			function createPatternCircleQuad(g, s) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', colours[0]);
+				fill = colours[1];
+				for (var a of [0, s / 2]) {
+					for (var b of [0, s / 2]) {
+						g
+							.append('circle')
+							.attr('cx', a + s / 4)
+							.attr('cy', b + s / 4)
+							.attr('r', s * 0.15)
+							.attr('fill', fill)
+					}
+				}
+			}
+
+			function createPatternCircleOpposites(g, s) {
+
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var x1 = 0, y1 = s / 2;
+				var x2 = s, y2 = s / 2;
+
+				if (Math.random() > 0.5) {
+					x1 = s / 2, y1 = 0;
+					x2 = s / 2, y2 = s;
+				}
+
+				g
+					.append('circle')
+					.attr('cx', x1)
+					.attr('cy', y1)
+					.attr('r', s / 2)
+					.attr('fill', fill)
+
+				if (Math.random() > 0.5) {
+					g
+						.append('rect')
+						.attr('x', x2 - s / 2)
+						.attr('y', y2 - s / 2)
+						.attr('width', s)
+						.attr('height', s)
+						.attr('fill', fill);
+					fill = fill == colours[1] ? colours[0] : colours[1];
+				}
+
+				g
+					.append('circle')
+					.attr('cx', x2)
+					.attr('cy', y2)
+					.attr('r', s / 2)
+					.attr('fill', fill)
+			}
+
+			function createPatternSquareNormal(g, s) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', s * 0.25)
+					.attr('y', s * 0.25)
+					.attr('width', s * 0.5)
+					.attr('height', s * 0.5)
+					.attr('fill', fill);
+			}
+
+			function createPatternSquareGrid(g, s) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+				var offset = Math.random() > 0.5 ? 0 : 1;
+				for (var a = 0; a < 4; a++) {
+					for (var b = 0; b < 4; b++) {
+						if ((a + b) % 2 == offset) {
+							g
+								.append('rect')
+								.attr('x', s / 4 * a)
+								.attr('y', s / 4 * b)
+								.attr('width', s * 0.25)
+								.attr('height', s * 0.25)
+								.attr('fill', fill);
+						}
+					}
+				}
+			}
+
+			function createPatternSquareOpposites(g, s) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+				var offset = Math.random() > 0.5 ? 0 : 1;
+				for (var a = 0; a < 2; a++) {
+					for (var b = 0; b < 2; b++) {
+						if ((a + b) % 2 == offset) {
+							g
+								.append('rect')
+								.attr('x', s / 2 * a)
+								.attr('y', s / 2 * b)
+								.attr('width', s * 0.5)
+								.attr('height', s * 0.5)
+								.attr('fill', fill);
+						}
+					}
+				}
+			}
+
+			function createPatternRectangle(g, s) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+				if (Math.random() > 0.5) {
+					g
+						.append('rect')
+						.attr('x', 0)
+						.attr('y', 0)
+						.attr('width', s * 0.5)
+						.attr('height', s * 1)
+						.attr('fill', fill);
+				} else {
+					g
+						.append('rect')
+						.attr('x', 0)
+						.attr('y', 0)
+						.attr('width', s * 1)
+						.attr('height', s * 0.5)
+						.attr('fill', fill);
+				}
+			}
+
+			function createPatternCornerTriangle(g, s) {
+
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', colours[0]);
+
+				var points =
+					[
+						'0,0 ',
+						s + ',0 ',
+						s + ',' + s + ' ',
+						'0,' + s + ' '
+					];
+
+				var start = ~~(Math.random() * 4);
+
+				g
+					.append('polygon')
+					.attr('points', points[start] + points[(start + 1) % 4] + points[(start + 2) % 4])
+					.attr('fill', colours[1]);
+			}
+
+			function createPatternTriangleSideNormal(g, s) {
+				createPatternTriangleSide(g, s, double = false, rotate = false);
+			}
+
+			function createPatternTriangleSideDouble(g, s) {
+				createPatternTriangleSide(g, s, double = true, rotate = false);
+			}
+
+			function createPatternTriangleSideDoubleRotate(g, s) {
+				createPatternTriangleSide(g, s, double = true, rotate = true);
+			}
+
+			function createPatternTriangleSide(g, s, double = false, rotate = false) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var points =
+					[
+						'0,0 ',
+						s + ',0 ',
+						s + ',' + s + ' ',
+						'0,' + s + ' '
+					];
+
+				var start = ~~(Math.random() * 4);
+
+				g
+					.append('polygon')
+					.attr('points', points[start] + (s / 2) + ',' + (s / 2) + ' ' + points[(start + 1) % 4])
+					.attr('fill', fill);
+
+				if (double) {
+					var offsetX = 0, offsetY = 0;
+					switch (start) {
+						case 0: offsetY += s / 2; break;
+						case 1: offsetX -= s / 2; break;
+						case 2: offsetY -= s / 2; break;
+						case 3: offsetX += s / 2; break;
+					}
+
+					if (rotate) {
+						g
+							.append('polygon')
+							.attr('transform', 'translate(' + offsetX + ' ' + offsetY + ')')
+							.attr('points', points[start] + (s / 2) + ',' + (s / 2) + ' ' + points[(start + 1) % 4])
+							.attr('fill', fill);
+					} else {
+						start += 2;
+						g
+							.append('polygon')
+							.attr('points', points[start % 4] + (s / 2) + ',' + (s / 2) + ' ' + points[(start + 1) % 4])
+							.attr('fill', fill);
+					}
+				}
+			}
+
+			function createPatternTriangleQuad(g, s) {
+
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var points =
+					[
+						'0,0 ',
+						(s / 2) + ',0 ',
+						(s / 2) + ',' + (s / 2) + ' ',
+						'0,' + (s / 2) + ' '
+					];
+
+				var start = ~~(Math.random() * 4);
+
+				for (var a of [0, s / 2]) {
+					for (var b of [0, s / 2]) {
+						g
+							.append('polygon')
+							.attr('transform', 'translate(' + a + ' ' + b + ')')
+							.attr('points', points[start] + points[(start + 1) % 4] + points[(start + 2) % 4])
+							.attr('fill', fill);
+					}
+				}
+			}
+
+            function createPatternArrow(g, s) {
+                var fill = colours[0];
+                g
+                    .append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', s)
+                    .attr('height', s)
+                    .attr('fill', fill);
+                fill = fill == colours[1] ? colours[0] : colours[1];
+
+                var points =
+					[
+						s/2 + ',0 ',
+						s + ',' + s/2 + ' ',
+						s + ',' + s + ' ',
+						s/2 + ',' + s/2 + ' ',
+						'0,' + s + ' ',
+						'0,' + s/2
+                    ];
+
+				g
+					.append('g')
+					.attr('transform-origin', s/2 + ' ' + s/2)
+                    .attr('transform', 'rotate(' + (90*~~(Math.random() * 4)) + ')')
+                    .append('polygon')
+					.attr('points', points.join(''))
+                    .attr('fill', fill);
+            }
+
+			function createPatternDiamondNormal(g, s) {
+				createPatternDiamond(g, s, large = false, small = true);
+			}
+
+			function createPatternDiamondLarge(g, s) {
+				createPatternDiamond(g, s, large = true, small = false);
+			}
+
+			function createPatternDiamondRing(g, s) {
+				createPatternDiamond(g, s, large = true, small = true);
+			}
+
+			function createPatternDiamond(g, s, large = false, small = false) {
+				var fill = colours[0];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var points =
+					[
+						(s / 2) + ',0 ',
+						s + ',' + (s / 2) + ' ',
+						(s / 2) + ',' + s + ' ',
+						'0,' + (s / 2) + ' '
+					];
+
+				if (large) {
+					g
+						.append('polygon')
+						.attr('points', points.join(' '))
+						.attr('fill', fill);
+					fill = fill == colours[1] ? colours[0] : colours[1];
+				}
+
+				if (small) {
+					var points =
+						[
+							(s / 2) + ',' + (s / 4) + ' ',
+							(s * 0.75) + ',' + (s / 2) + ' ',
+							(s / 2) + ',' + (s * 0.75) + ' ',
+							(s / 4) + ',' + (s / 2) + ' '
+						];
+					g
+						.append('polygon')
+						.attr('points', points.join(' '))
+						.attr('fill', fill);
+				}
+			}
+
+			function createPatternArcSolid(g, s) {
+				createPatternArc(g, s, ring = false, twin = false);
+			}
+
+			function createPatternArcRing(g, s) {
+				createPatternArc(g, s, ring = true, twin = false);
+			}
+
+			function createPatternArcRingTwin(g, s) {
+				createPatternArc(g, s, ring = true, twin = true);
+			}
+
+			function createPatternArc(g, s, ring = false, twin = false) {
+
+				var x = 0, y = 0;
+
+				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				if (twin) {
+					g
+						.append('circle')
+						.attr('cx', s / 2)
+						.attr('cy', s / 2)
+						.attr('r', s / 2)
+						.attr('fill', fill);
+					switch (~~(Math.random() * 4)) {
+						case 0: x = s / 2; break;
+						case 1: x = s; y = s / 2; break;
+						case 2: x = s / 2; y = s; break;
+						case 3: x = s / 2; y = s; break;
+					}
+					g
+						.append('rect')
+						.attr('x', x - s / 2)
+						.attr('y', y - s / 2)
+						.attr('width', s)
+						.attr('height', s)
+						.attr('fill', fill);
+				} else {
+					switch (~~(Math.random() * 4)) {
+						case 0: break;
+						case 1: x = s; break;
+						case 2: y = s; break;
+						case 3: x = s; y = s; break;
+					}
+					g
+						.append('circle')
+						.attr('cx', x)
+						.attr('cy', y)
+						.attr('r', s)
+						.attr('fill', fill);
+				}
+
+				if (ring) {
+					fill = fill == colours[1] ? colours[0] : colours[1];
+					g
+						.append('circle')
+						.attr('cx', x)
+						.attr('cy', y)
+						.attr('r', s / 2)
+						.attr('fill', fill);
+				}
+			}
+
+			function createPatternArcQuartersAll(g, s) {
+				createPatternArcQuarters(g, s, opposites = false);
+			}
+
+			function createPatternArcQuartersOpposites(g, s) {
+				createPatternArcQuarters(g, s, opposites = true);
+			}
+
+			function createPatternArcQuarters(g, s, opposites = false) {
+
+				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var include = [1, 1, 1, 1];
+				if (opposites) {
+					include = Math.random() > 0.5 ? [1, 0, 0, 1] : [0, 1, 1, 0];
+				}
+
+				var count = 0;
+				for (var a = 0; a <= 1; a++) {
+					for (var b = 0; b <= 1; b++) {
+						if (include[count++]) {
+							g
+								.append('circle')
+								.attr('cx', a * s)
+								.attr('cy', b * s)
+								.attr('r', s / 2)
+								.attr('fill', fill);
+						}
+					}
+				}
+			}
+
+			function createPatternLinesStraight(g, s) {
+				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var thickness = s / lines;
+				var vertical = Math.random() > 0.5;
+
+				for (var a = 1; a < lines; a += 2) {
+					if (vertical) {
+						g
+							.append('rect')
+							.attr('x', 0)
+							.attr('y', s / lines * a)
+							.attr('width', s)
+							.attr('height', thickness)
+							.attr('fill', fill);
+					} else {
+						g
+							.append('rect')
+							.attr('x', s / lines * a)
+							.attr('y', 0)
+							.attr('width', thickness)
+							.attr('height', s)
+							.attr('fill', fill);
+					}
+				}
+			}
+
+			function createPatternLinesDiagonal(g, s) {
+
+				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var ratio = 0.71;
+				var thickness = (s / lines) * ratio;
+				var opposite = Math.random() > 0.5;
+				var extend = s;
+
+				for (var a = 1; a < (lines * 2); a += 2) {
+					var line = g
+						.append('line')
+						.attr('y1', -extend)
+						.attr('y2', extend + s)
+						.attr('stroke-width', thickness)
+						.attr('stroke', fill);
+					if (opposite) {
+						line
+							.attr('x1', extend + (thickness * ratio) + ((s * 2) / (lines * 2) * a))
+							.attr('x2', -extend + (thickness * ratio) + ((s * 2) / (lines * 2) * a) + -s);
+					} else {
+						line
+							.attr('x1', -extend + (thickness * ratio) + ((s * 2) / (lines * 2) * a) + -s)
+							.attr('x2', extend + (thickness * ratio) + ((s * 2) / (lines * 2) * a));
+					}
+				}
+			}
+
+            function createPatternLinesDiagonalPair(g, s) {
+                var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+                g
+                    .append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', s)
+                    .attr('height', s)
+                    .attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				var container =
+					g
+						.append('g')
+						.attr('transform-origin', s / 2 + ' ' + s / 2)
+						.attr('transform', 'rotate(' + (90 * ~~(Math.random() * 4)) + ')');
+
+                var points =
+					[
+						0   + ',' + 0   + ' ',
+						s/2 + ',' + 0   + ' ',
+						s   + ',' + s/2 + ' ',
+						s   + ',' + s   + ' '
+					];
+
+                container
+                    .append('polygon')
+                    .attr('points', points.join(''))
+					.attr('fill', fill);
+
+                points =
+                    [
+                        0   + ',' + s/2 + ' ',
+                        s/2 + ',' + s   + ' ',
+                        0   + ',' + s   + ' ',
+                    ];
+
+                container
+                    .append('polygon')
+                    .attr('points', points.join(''))
+                    .attr('fill', fill);
+            }
+
+			function createPatternLinesArc(g, s) {
+
+				var x = 0, y = 0;
+
+				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
+				g
+					.append('rect')
+					.attr('x', 0)
+					.attr('y', 0)
+					.attr('width', s)
+					.attr('height', s)
+					.attr('fill', fill);
+				fill = fill == colours[1] ? colours[0] : colours[1];
+
+				switch (~~(Math.random() * 4)) {
+					case 0: break;
+					case 1: x = s; break;
+					case 2: y = s; break;
+					case 3: x = s; y = s; break;
+				}
+
+				for (var a = lines; a > 0; a--) {
+					g
+						.append('circle')
+						.attr('cx', x)
+						.attr('cy', y)
+						.attr('r', s / lines * a)
+						.attr('fill', fill);
+					fill = fill == colours[1] ? colours[0] : colours[1];
+				}
+			}
+
+		</script>
+	</body>
+</html>
