@@ -21,7 +21,7 @@ p {
 
 #initial,
 #heading {
-	padding: 0 5px 5px 5px;
+	padding: 0 5px 5px;
 	margin: 36px auto 20px !important;
 	font: normal 35px 'roboto slab', georgia, serif;
 	font-weight: 500;
@@ -139,7 +139,7 @@ select, input {
 
 #footer {
 	background: black;
-	padding: 5px 5px 25px 5px;
+	padding: 5px 5px 25px;
 }
 
 /***** SMALL SCREEN COMPATIBILITY *****/
