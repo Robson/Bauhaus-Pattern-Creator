@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
- * [Demo](#demo)
  * [Explanation](#explanation)
  * [Live Version](#live-version)
  * [Compatibility](#compatibility)
@@ -11,10 +10,6 @@
  * [Technologies](#technologies)
  * [Validation](#validation)
  
-## Demo
-
-_Coming soon!_
-
 ## Explanation
 
 An interactive webpage for creating images in the Bauhaus pattern style. You can change the size, colours, shapes, etc. The generated images can be download as SVGs.
