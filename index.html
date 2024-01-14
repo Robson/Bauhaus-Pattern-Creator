@@ -574,6 +574,7 @@
 				fill = fill == colours[1] ? colours[0] : colours[1];
 				g
 					.append('rect')
+					.attr('shape-rendering', 'crispEdges')
 					.attr('x', s * 0.25)
 					.attr('y', s * 0.25)
 					.attr('width', s * 0.5)
