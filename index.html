@@ -97,18 +97,27 @@
 							<option value="procgen">Random</option>
 							<option value="" disabled>--------</option>
 							<!--<option value="autumn">Autumn</option>-->
-							<option value="forest">Forest</option>
-							<option value="grey">Grey</option>
+							<option value="marigold">Marigold</option>
+							<option value="maritime">Maritime</option>
+							<option value="melancholy">Melancholy</option>
+							<option value="memory">Memory</option>
+							<option value="merlot">Merlot</option>
 							<option value="miami">Miami</option>
 							<option value="mondrian">Mondrian</option>
-							<option value="monochrome">Mono</option>
+							<option value="mono">Mono</option>
+							<option value="monochrome">Monchrome</option>
 							<option value="mood">Mood</option>
-							<option value="nautical">Nautical</option>
-							<option value="rust">Rust</option>
-							<option value="state">State</option>
-							<option value="sunset">Sunset</option>
-							<option value="vampire">Vampire</option>
-							<option value="vintage">Vintage</option>
+							<option value="morning">Morning</option>
+							<option value="mountain">Mountain</option>
+							<option value="mulberry">Mulberry</option>
+							<option value="mulch">Mulch</option>
+							<option value="mushroom">Mushroom</option>
+							<option value="mystic">Mystic</option>
+							<!--
+							<option value="test1">Test A</option>
+							<option value="test2">Test B</option>
+							<option value="test3">Test C</option>
+							-->
 						</select>
 					</td>
 				</tr>
@@ -181,49 +190,50 @@
                 	case 'procgen':
                 		colours = getRandomColours(procgen);
                 		break;
-                    case 'autumn':
-                        colours = getRandomColours(['#AD0303', '#040D66', '#E48F0D', '#DCBDAB']);
-                        break;
-                    case 'beach':
-                        colours = getRandomColours(['#0477BF', '#F2B705', '#F2E2C4', '#261D11', '#A6290D']);
-                        break;
                     case 'miami':
                         colours = getRandomColours(['#18C0EF', '#F14F7B', '#F7AA1C']);
                         break;
-                    case 'vintage':
+                    case 'memory':
                         colours = getRandomColours(['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA']);
                         break;
-                    case 'nautical':
-                        colours = getRandomColours(['#DBD0C4', '#9D251B', '#273658']);
+                    case 'maritime':
+                        colours = getRandomColours(['#FF444B', '#2AA4CF', '#FDF6EC']);
                         break;
                     case 'mood':
                         colours = getRandomColours(['#C3B6A9', '#254769', '#1B1C3B']);
                         break;
-                    case 'forest':
+                    case 'mulch':
                     	colours = getRandomColours(['#606c38', '#283618', '#dda15e', '#bc6c25']);
                     	break;
-                    case 'vampire':
-                    	colours = getRandomColours(['#9B2525', '#550B02', '#EFC5C6', '#0A0000']);
+                    case 'merlot':
+                    	colours = getRandomColours(['#89363E', '#40262B', '#E7DFE0', '#100708']);
                     	break;
                     case 'mondrian':
                     	colours = getRandomColours(['#FAC901', '#225095', '#DD0100', '#fff']);
                     	break;
-                    case 'grey':
-                        colours = colours = getRandomColours(['#222', '#777', '#ccc']);
+                    case 'monochrome':
+                        colours = getRandomColours(['#222', '#777', '#ccc']);
                         break;
-                    case 'rust':
+                    case 'mulberry':
                         colours = getRandomColours(['#D52439', '#110C1A', '#EACBAA']);
                         break;
-                    case 'state':
-                        colours = ['#2C2C29'];
-                        if (Math.random() > 0.5) {
-                            colours.push('#B24C32');
-                        } else {
-                            colours.push('#628696');
-                        }
+                    case 'marigold':
+                        colours = getRandomColours(['#FFB510', '#FFFFFF', '#000']);
                         break;
-                    case 'sunset':
+                    case 'morning':
+                        colours = getRandomColours(['#F1C40F', '#E67E22', '#E74C3C', '#3498DB']);
+                        break;
+                    case 'mountain':
+                        colours = getRandomColours(['#84B9AA', '#21462C', '#577D76', '#fff']);
+                        break;
+                    case 'mystic':
+                        colours = getRandomColours(['#EDAD7B', '#ED78AD', '#311B2E', '#2C86A6']);
+                        break;
+                    case 'melancholy':
                         colours = getRandomColours(['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496']);
+						break;
+                    case 'mushroom':
+                        colours = getRandomColours(['#C55633', '#692D1B', '#838B69', '#C2BFA7']);
 						break;
                     default:
                         colours = ['white', 'black'];
@@ -353,7 +363,24 @@
 				}
 
 				if (colourSet == 'random' || colourSet.length == 0) {
-					var sets = ['forest', 'grey', 'mondrian', 'mood', 'monochrome', 'nautical', 'rust', 'state', 'sunset', 'vampire', 'vintage'];
+					var sets = [
+						'marigold',
+						'maritime',
+						'melancholy',
+						'memory',
+						'merlot',
+						'miami',
+						'mondrian',
+						'mono',
+						'monochrome',
+						'mood',
+						'morning',
+						'mountain',
+						'mulberry',
+						'mulch',
+						'mushroom',
+						'mystic',
+					];
 					colourSet = sets[~~(Math.random() * sets.length)];
 				}
 
@@ -383,7 +410,7 @@
 				}
 
 				switch (colourSet) {
-					case 'state':
+					case 'merlot':
 						outside.attr('fill', '#2C2C29');
 						break;
 					default:
