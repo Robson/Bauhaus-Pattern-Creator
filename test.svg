@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="330">
+  <defs>
+    <clipPath id="clippy">
+        <rect x="0" y="0" width="50" height="50"></rect>
+    </clipPath>
+    <pattern id="brick" width='55' height='55' patternUnits='userSpaceOnUse'>
+      <g clip-path="url(#clippy)">
+        <rect x="0" y="0" width="50" height="50" fill="black"></rect>
+        <circle cx="40" cy="40" r="20" fill="red"></circle>        
+      </g>
+    </pattern>
+  </defs>
+  <rect width="220" height="330" fill="url(#brick)"></rect>
+</svg>

@@ -66,7 +66,21 @@
 					<td>
 						<select id="maxScale">
 							<option value="1">No</option>
-							<option value="2" selected="selected">Max 2x2</option>
+							<option value="2" selected>Max 2x2</option>
+							<option value="4">Max 4x4</option>
+							<option value="8">Max 8x8</option>
+							<option value="16">Max 16x16</option>
+							<option value="32">Max 32x32</option>
+							<option value="64">Max 64x64</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>Repetition:</th>
+					<td>
+						<select id="maxRepetition">
+							<option value="1">No</option>
+							<option value="2" selected>Max 2x2</option>
 							<option value="4">Max 4x4</option>
 							<option value="8">Max 8x8</option>
 							<option value="16">Max 16x16</option>
@@ -114,10 +128,10 @@
 							<option value="mushroom">Mushroom</option>
 							<option value="mystic">Mystic</option>
 							<!--
-							<option value="test1">Test A</option>
-							<option value="test2">Test B</option>
-							<option value="test3">Test C</option>
-							-->
+				<option value="test1">Test A</option>
+				<option value="test2">Test B</option>
+				<option value="test3">Test C</option>
+				-->
 						</select>
 					</td>
 				</tr>
@@ -126,7 +140,8 @@
 			<input type="button" value="Create" onclick="createPattern()">
 
 			<div class="mobile_no">
-				<input type="button" value="Download Image" id="download" onclick="downloadImage()"><br>
+				<input type="button" value="Download PNG" id="downloadPNG" onclick="downloadImagePNG()"><br>
+				<input type="button" value="Download SVG" id="downloadSVG" onclick="downloadImageSVG()">
 				<p class="about"><a href="https://github.com/Robson/Bauhaus-Pattern-Creator">Code</a> by <a href="https://robson.plus/">Robson</a></p>
 			</div>
 		</div>
@@ -135,7 +150,8 @@
 
 		<div class="mobile_yes">
 			<div id="footer">
-				<input type="button" value="Download Image" id="downloadMobile" onclick="downloadImage()"><br>
+				<input type="button" value="Download PNG" id="downloadMobilePNG" onclick="downloadImagePNG()"><br>
+				<input type="button" value="Download SVG" id="downloadMobileSVG" onclick="downloadImageSVG()">
 				<p class="about"><a href="https://github.com/Robson/Bauhaus-Pattern-Generator">Code</a> by <a href="https://robson.plus/">Robson</a>.</p>
 			</div>
 		</div>
@@ -148,7 +164,8 @@
 
 			setInterval(function () { colourHeading(); }, 60 * 1000);
 			d3.select('h1').style('display', 'none');
-			d3.select('#download').style('display', 'none');
+			d3.select('#downloadSVG').style('display', 'none');
+            d3.select('#downloadPNG').style('display', 'none');
 			d3.select('#footer').style('display', 'none');
 			d3.select('#heading').style('display', 'none');
 
@@ -170,7 +187,7 @@
 				return filename;
 			}
 
-			function downloadImage() {
+			function downloadImageSVG() {
 				var svgEl = document.getElementById("render");
 				d3.select('#render').attr("xmlns", "http://www.w3.org/2000/svg");
 				var svgData = new XMLSerializer().serializeToString(svgEl);
@@ -183,6 +200,31 @@
 				document.body.appendChild(downloadLink);
 				downloadLink.click();
 				document.body.removeChild(downloadLink);
+			}
+
+			function downloadImagePNG() {
+                const render = document.querySelector('svg');
+                const xml = (new XMLSerializer()).serializeToString(render);
+                const blob = new Blob([xml], {
+                    type: 'image/svg+xml;charset=utf-8'
+                });
+                const url = URL.createObjectURL(blob);
+                const image = new Image();
+                image.addEventListener('load', () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = +(d3.select('svg').attr('width').replace('px', ''));
+					canvas.height = +(d3.select('svg').attr('height').replace('px', ''));
+                    const context = canvas.getContext('2d');
+                    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                    URL.revokeObjectURL(url);
+                    const link = document.createElement('a');
+                    link.download = 'BPC ' + getDateTimeFilename() + '.png';
+                    document.body.appendChild(link);
+                    link.href = canvas.toDataURL();
+                    link.click();
+                    link.remove();
+                });
+                image.src = url;
 			}
 
             function setRandomColours(colourSet) {
@@ -236,12 +278,8 @@
                         colours = getRandomColours(['#C55633', '#692D1B', '#838B69', '#C2BFA7']);
 						break;
                     default:
-                        colours = ['white', 'black'];
+                        colours = getRandomColours(['white', 'black']);
                         break;
-                }
-
-                if (Math.random() > 0.5) {
-                    [colours[0], colours[1]] = [colours[1], colours[0]];
                 }
 			}
 
@@ -311,10 +349,10 @@
 				var patternSet = d3.select('#patternSet').property('value');
 				var colourSet = d3.select('#colourSet').property('value');
 				var maxScale = +d3.select('#maxScale').property('value');
+                var maxRepetition = +d3.select('#maxRepetition').property('value');
 
 				var outside = d3.select('#output').append('svg');
 				outside.attr('xmlns', 'http://www.w3.org/2000/svg');
-				outside.attr('shape-rxendering', 'geometricPrecision');
 				outside.attr('id', 'render');
 				outside.attr('width', columns * (unitSize + gapSize) + 'px');
 				outside.attr('height', rows * (unitSize + gapSize) + 'px');
@@ -336,7 +374,7 @@
 				}
 				var sizes = [256, 128, 64, 32, 16, 8, 4, 2];
 				for (var size of sizes) {
-					if (size <= maxScale) {
+                    if (size <= maxScale || size <= maxRepetition) {
 						if (rows >= size && columns >= size) {
 							for (var a = 0; a < 50; a++) {
 								var checkR = ~~(Math.random() * (1 + rows - size));
@@ -387,24 +425,50 @@
 				for (var a = 0; a < columns; a++) {
 					for (var b = 0; b < rows; b++) {
 						if (grid[b][a] > 0) {
-							var extraLength = 0;
-							switch (grid[b][a]) {
-								case 2:  extraLength = gapSize * 0.5; break;
-                                case 4:  extraLength = gapSize * 0.75; break;
-                                case 8:  extraLength = gapSize * 0.875; break;
-								case 16: extraLength = gapSize * 0.94; break;
-								case 32: extraLength = gapSize * 0.97; break;
-                                case 64: extraLength = gapSize * 0.985; break;
-							}
 
-							createRandomPattern(
-								colourSet,
-								grid[b][a],
-								patternSet,
-								outside,
-								a * (unitSize + gapSize),
-								b * (unitSize + gapSize),
-								unitSize + extraLength);
+							var isRepeated = false;
+
+							var extraLength = 0;
+							if (grid[b][a] > 1) {
+								switch (grid[b][a]) {
+									case 2: extraLength = gapSize * 0.5; break;
+									case 4: extraLength = gapSize * 0.75; break;
+									case 8: extraLength = gapSize * 0.875; break;
+									case 16: extraLength = gapSize * 0.94; break;
+									case 32: extraLength = gapSize * 0.97; break;
+									case 64: extraLength = gapSize * 0.985; break;
+								}
+								var allowedRepetition = maxRepetition >= grid[b][a];
+								var allowedScaling = maxScale >= grid[b][a];
+								if (allowedRepetition) {
+									if (allowedScaling) {
+										isRepeated = Math.random() > 0.5;
+									} else {
+										isRepeated = true;
+									}
+								}
+							}
+							if (isRepeated) {
+								createRandomPattern(
+									colourSet,
+									grid[b][a],
+									patternSet,
+									outside,
+									a * (unitSize + gapSize),
+									b * (unitSize + gapSize),
+									unitSize,
+                                    gapSize,
+									repetition = true);
+							} else {
+                                createRandomPattern(
+                                    colourSet,
+                                    grid[b][a],
+                                    patternSet,
+                                    outside,
+                                    a * (unitSize + gapSize),
+                                    b * (unitSize + gapSize),
+									unitSize + extraLength);
+							}
 						}
 					}
 				}
@@ -418,12 +482,13 @@
 						break;
 				}
 
-				d3.select('#download').style('display', null);
+				d3.select('#downloadSVG').style('display', null);
+                d3.select('#downloadPNG').style('display', null);
 				d3.select('#about').style('display', null);
 				d3.select('#footer').style('display', null);
 			}
 
-			function createRandomPattern(colourSet, scale, patternSet, svg, x, y, s, overwrite = false) {
+			function createRandomPattern(colourSet, scale, patternSet, svg, x, y, s, gap = 0, repetition = false, overwrite = false) {
 
 				setRandomColours(colourSet);
 
@@ -453,7 +518,7 @@
 					createPatternArcQuartersOpposites,
 					createPatternLinesStraight,
 					createPatternLinesDiagonal,
-                    createPatternLinesDiagonalPair,
+					createPatternLinesDiagonalPair,
 					createPatternLinesArc,
 				];
 
@@ -473,28 +538,28 @@
 							createPatternLinesArc,
 						];
 						break;
-                    case 'diagonals':
-                        available = [
-                            createPatternCornerTriangle,
-                            createPatternTriangleSideNormal,
-                            createPatternTriangleSideDouble,
-                            createPatternTriangleSideDoubleRotate,
-                            createPatternTriangleQuad,
-                            createPatternArrow,
-                            createPatternDiamondNormal,
-                            createPatternDiamondLarge,
-                            createPatternDiamondRing,
-                            //createPatternLinesDiagonal,
-                            createPatternLinesDiagonalPair,
-                        ];
-                        break;
-                    case 'lines':
-                        available = [
-                            createPatternLinesStraight,
-                            createPatternLinesDiagonal,
-                            createPatternLinesArc,
-                        ];
-                        break;
+					case 'diagonals':
+						available = [
+							createPatternCornerTriangle,
+							createPatternTriangleSideNormal,
+							createPatternTriangleSideDouble,
+							createPatternTriangleSideDoubleRotate,
+							createPatternTriangleQuad,
+							createPatternArrow,
+							createPatternDiamondNormal,
+							createPatternDiamondLarge,
+							createPatternDiamondRing,
+							//createPatternLinesDiagonal,
+							createPatternLinesDiagonalPair,
+						];
+						break;
+					case 'lines':
+						available = [
+							createPatternLinesStraight,
+							createPatternLinesDiagonal,
+							createPatternLinesArc,
+						];
+						break;
 					case 'straights':
 						available = [
 							createPatternSquareNormal,
@@ -504,45 +569,90 @@
 							createPatternLinesStraight,
 						];
 						break;
-                    case 'triangles':
-                        available = [
-                            createPatternCornerTriangle,
-                            //createPatternTriangleSideNormal,
-                            createPatternTriangleSideDouble,
-                            createPatternTriangleSideDoubleRotate,
-                            createPatternTriangleQuad,
-                        ];
-                        break;
+					case 'triangles':
+						available = [
+							createPatternCornerTriangle,
+							//createPatternTriangleSideNormal,
+							createPatternTriangleSideDouble,
+							createPatternTriangleSideDoubleRotate,
+							createPatternTriangleQuad,
+						];
+						break;
 				}
 
 				var chosen = available[~~(Math.random() * available.length)];
+				var id = '_' + x + '_' + y;
 
-				var g;
-				if (overwrite) {
-					g = svg;
-				} else {
-					var id = '_' + x + '_' + y;
-					var defs = svg.select('defs');
-					defs
-						.append('clipPath')
-						.attr('id', 'clip' + id)
-						.append('rect')
-						.attr('x', 0)
-						.attr('y', 0)
-						.attr('width', s)
+				if (repetition) {
+
+                    var defs = svg.select('defs');
+                    defs
+                        .append('clipPath')
+                        .attr('id', 'clip' + id)
+                        .append('rect')
+                        .attr('x', 0)
+                        .attr('y', 0)
+                        .attr('width', s)
 						.attr('height', s);
-					g = svg.append('g');
-					g.attr('id', 'unit' + id);
-					g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
-					g.attr('clip-path', 'url(#clip' + id + ')');
-					g.on('click', function() {
-						d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
-						createRandomPattern(colourSet, scale, patternSet, g, x, y, s, overwrite = true);
-						d3.event.stopPropagation();
-					});
-				}
+					var pattern = defs
+						.append('pattern')
+						.attr('id', 'pat' + id)
+						.attr('width', s + gap)
+						.attr('height', s + gap)
+						.attr('patternUnits', 'userSpaceOnUse');
 
-				chosen(g, +s);
+					var g = pattern
+						.append('g')
+						.attr('id', 'box' + id)
+						.attr('clip-path', 'clip' + id)
+                    g.attr('clip-path', 'url(#clip' + id + ')');
+
+					chosen(g, +s);
+
+					svg
+						.append('rect')
+						.attr('id', 'rept' + id)
+						.attr('x', x)
+						.attr('y', y)
+						.attr('width', (s + gap) * scale)
+                        .attr('height', (s + gap) * scale)
+						.attr('fill', 'url(#pat' + id + ')')
+						.on('click', function () {
+							var id = d3.select(this).attr('id').replace('rept', '');
+							d3.selectAll('#box' + id + ' *').remove();
+							var g = d3.select('#box' + id);
+							createRandomPattern(colourSet, scale, patternSet, g, x, y, s, 0, false, overwrite = true);
+							d3.event.stopPropagation();
+						});
+
+				} else {
+
+					var g;
+					if (overwrite) {
+						g = svg;
+					} else {						
+						var defs = svg.select('defs');
+						defs
+							.append('clipPath')
+							.attr('id', 'clip' + id)
+							.append('rect')
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('width', s)
+							.attr('height', s);
+						g = svg.append('g');
+						g.attr('id', 'unit' + id);
+						g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
+						g.attr('clip-path', 'url(#clip' + id + ')');
+						g.on('click', function () {
+							d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
+							createRandomPattern(colourSet, scale, patternSet, g, x, y, s, 0, repetition, overwrite = true);
+							d3.event.stopPropagation();
+						});
+					}
+					chosen(g, +s);
+
+				}
 			}
 
 			function createPatternCircleNormal(g, s) {
