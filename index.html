@@ -115,6 +115,7 @@
 							<option value="maritime">Maritime</option>
 							<option value="melancholy">Melancholy</option>
 							<option value="memory">Memory</option>
+							<option value="memphis">Memphis</option>
 							<option value="merlot">Merlot</option>
 							<option value="miami">Miami</option>
 							<option value="mondrian">Mondrian</option>
@@ -246,6 +247,9 @@
                         break;
                     case 'mulch':
                     	colours = getRandomColours(['#606c38', '#283618', '#dda15e', '#bc6c25']);
+                    	break;
+                    case 'memphis':
+                    	colours = getRandomColours(['#672394', '#F725A0', '#FAD141', '#0CB2C0', '#E8E6D9']);
                     	break;
                     case 'merlot':
                     	colours = getRandomColours(['#89363E', '#40262B', '#E7DFE0', '#100708']);
@@ -406,6 +410,7 @@
 						'maritime',
 						'melancholy',
 						'memory',
+						'memphis',
 						'merlot',
 						'miami',
 						'mondrian',
@@ -630,7 +635,7 @@
 					var g;
 					if (overwrite) {
 						g = svg;
-					} else {						
+					} else {
 						var defs = svg.select('defs');
 						defs
 							.append('clipPath')

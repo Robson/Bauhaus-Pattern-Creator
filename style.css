@@ -44,7 +44,7 @@ p {
 }
 
 .about {
-	margin: 25px 5px;
+	margin: 25px 5px 60px;
 }
 
 /***** LINKS *****/
@@ -65,6 +65,8 @@ a:hover {
 	background: #000;
 	width: 300px;
 	height: 100%;
+	overflow-x: clip;
+	overflow-y: auto;
 	position: fixed;
 	top: 0;
 }
@@ -170,12 +172,13 @@ select, input {
 	}
 
 	#output {
+		text-align: center;
 		height: auto;
 		max-height: none;
 		margin: 0 auto;
 		display: block;
 		left: 0;
-		overflow-x: scroll;
+		overflow-x: auto;
 		overflow-y: visible;
 		background: white;
 	}
