@@ -41,7 +41,7 @@
 			<table id="heading">
 				<tr><td>B</td><td>a</td><td>u</td><td>h</td><td>a</td><td>u</td><td>s</td></tr>
 				<tr><td>P</td><td>a</td><td>t</td><td>t</td><td>e</td><td>r</td><td>n</td></tr>
-				<tr><td>C</td><td>r</td><td>e</td><td>a</td><td>t</td><td>o</td><td>r</td></tr>
+				<tr><td>C</td><td>r</td><td>e</td><td>a</td><td>t</td><td onclick="createWallpapers()">o</td><td>r</td></tr>
 			</table>
 
 			<table id="sizes">
@@ -90,10 +90,10 @@
 					</td>
 				</tr>
 				<tr>
-					<th>Patterns:</th>
+					<th>Shapes:</th>
 					<td>
 						<select id="patternSet">
-							<option value="everything" selected>Everything</option>
+							<option value="everything" selected>All</option>
 							<option value="" disabled>--------</option>
 							<option value="curves">Curves</option>
 							<option value="diagonals">Diagonals</option>
@@ -153,7 +153,7 @@
 			<div id="footer">
 				<input type="button" value="Download PNG" id="downloadMobilePNG" onclick="downloadImagePNG()"><br>
 				<input type="button" value="Download SVG" id="downloadMobileSVG" onclick="downloadImageSVG()">
-				<p class="about"><a href="https://github.com/Robson/Bauhaus-Pattern-Generator">Code</a> by <a href="https://robson.plus/">Robson</a>.</p>
+				<p class="about"><a href="https://github.com/Robson/Bauhaus-Pattern-Generator">Code</a> by <a href="https://robson.plus/">Robson</a></p>
 			</div>
 		</div>
 
@@ -203,7 +203,7 @@
 				document.body.removeChild(downloadLink);
 			}
 
-			function downloadImagePNG() {
+			function downloadImagePNG(filename='') {
                 const render = document.querySelector('svg');
                 const xml = (new XMLSerializer()).serializeToString(render);
                 const blob = new Blob([xml], {
@@ -219,13 +219,45 @@
                     context.drawImage(image, 0, 0, canvas.width, canvas.height);
                     URL.revokeObjectURL(url);
                     const link = document.createElement('a');
-                    link.download = 'BPC ' + getDateTimeFilename() + '.png';
+                    if (filename.length > 0) {
+                    	link.download = 'BPC ' + getDateTimeFilename() + ' ' + filename + '.png';
+                    } else {
+                    	link.download = 'BPC ' + getDateTimeFilename() + '.png';
+                    }
                     document.body.appendChild(link);
                     link.href = canvas.toDataURL();
                     link.click();
                     link.remove();
                 });
                 image.src = url;
+			}
+
+			function createWallpapers() {
+				var sets = [
+					'marigold',
+					'maritime',
+					'melancholy',
+					'memory',
+					'memphis',
+					'merlot',
+					'miami',
+					'mondrian',
+					'mono',
+					'monochrome',
+					'mood',
+					'morning',
+					'mountain',
+					'mulberry',
+					'mulch',
+					'mushroom',
+					'mystic',
+				];
+				for (var set of sets) {
+					console.log(set);
+					d3.select('#colourSet').property('value', set);
+					createPattern();
+					downloadImagePNG(set);
+				}
 			}
 
             function setRandomColours(colourSet) {
@@ -491,6 +523,9 @@
                 d3.select('#downloadPNG').style('display', null);
 				d3.select('#about').style('display', null);
 				d3.select('#footer').style('display', null);
+
+				d3.selectAll('rect').attr('shape-rendering', 'crispEdges');
+				d3.selectAll('polygon').attr('shape-rendering', 'crispEdges');
 			}
 
 			function createRandomPattern(colourSet, scale, patternSet, svg, x, y, s, gap = 0, repetition = false, overwrite = false) {
