@@ -644,135 +644,146 @@
 				d3.selectAll('polygon').attr('shape-rendering', 'crispEdges');
 			}
 
-			function createRandomPattern(colourSet, scale, patternSet, svg, container, x, y, s, gap = 0, repetition, overwrite, mirrorType) {
+			function chooseRandomPattern(patternSet, mirrorType) {
 
-				setRandomColours(colourSet);
+                var available = [
+                    createPatternCircleNormal,
+                    createPatternCircleLarge,
+                    createPatternCircleLargeRing,
+                    //createPatternCircleQuad,
+                    createPatternCircleOpposites,
+                    createPatternSquareNormal,
+                    createPatternSquareGrid,
+                    createPatternSquareOpposites,
+                    createPatternRectangle,
+                    createPatternCornerTriangle,
+                    createPatternTriangleSideNormal,
+                    createPatternTriangleSideDouble,
+                    createPatternTriangleSideDoubleRotate,
+                    createPatternTriangleQuad,
+                    createPatternArrow,
+                    createPatternDiamondNormal,
+                    createPatternDiamondLarge,
+                    createPatternDiamondRing,
+                    createPatternArcSolid,
+                    createPatternArcRing,
+                    createPatternArcRingTwin,
+                    //createPatternArcQuartersAll,
+                    createPatternArcQuartersOpposites,
+                    createPatternLinesStraight,
+                    createPatternLinesDiagonal,
+                    createPatternLinesDiagonalPair,
+                    createPatternLinesArc,
+                ];
 
-				var available = [
-					createPatternCircleNormal,
-					createPatternCircleLarge,
-					createPatternCircleLargeRing,
-					//createPatternCircleQuad,
-					createPatternCircleOpposites,
-					createPatternSquareNormal,
-					createPatternSquareGrid,
-					createPatternSquareOpposites,
-					createPatternRectangle,
-					createPatternCornerTriangle,
-					createPatternTriangleSideNormal,
-					createPatternTriangleSideDouble,
-					createPatternTriangleSideDoubleRotate,
-					createPatternTriangleQuad,
-					createPatternArrow,
-					createPatternDiamondNormal,
-					createPatternDiamondLarge,
-					createPatternDiamondRing,
-					createPatternArcSolid,
-					createPatternArcRing,
-					createPatternArcRingTwin,
-					//createPatternArcQuartersAll,
-					createPatternArcQuartersOpposites,
-					createPatternLinesStraight,
-					createPatternLinesDiagonal,
-					createPatternLinesDiagonalPair,
-					createPatternLinesArc,
-				];
+                switch (patternSet) {
+                    case 'curves':
+                        available = [
+                            createPatternCircleNormal,
+                            createPatternCircleLarge,
+                            createPatternCircleLargeRing,
+                            createPatternCircleOpposites,
+                            //createPatternCircleQuad,
+                            createPatternArcSolid,
+                            createPatternArcRing,
+                            createPatternArcRingTwin,
+                            //createPatternArcQuartersAll,
+                            createPatternArcQuartersOpposites,
+                            createPatternLinesArc,
+                        ];
+                        break;
+                    case 'diagonals':
+                        available = [
+                            createPatternCornerTriangle,
+                            createPatternTriangleSideNormal,
+                            createPatternTriangleSideDouble,
+                            createPatternTriangleSideDoubleRotate,
+                            createPatternTriangleQuad,
+                            createPatternArrow,
+                            createPatternDiamondNormal,
+                            createPatternDiamondLarge,
+                            createPatternDiamondRing,
+                            //createPatternLinesDiagonal,
+                            createPatternLinesDiagonalPair,
+                        ];
+                        break;
+                    case 'lines':
+                        available = [
+                            createPatternLinesStraight,
+                            createPatternLinesDiagonal,
+                            createPatternLinesArc,
+                        ];
+                        break;
+                    case 'straights':
+                        available = [
+                            createPatternSquareNormal,
+                            createPatternSquareGrid,
+                            createPatternSquareOpposites,
+                            createPatternRectangle,
+                            createPatternLinesStraight,
+                        ];
+                        break;
+                    case 'triangles':
+                        available = [
+                            createPatternCornerTriangle,
+                            createPatternTriangleSideNormal,
+                            createPatternTriangleSideDouble,
+                            createPatternTriangleSideDoubleRotate,
+                            createPatternTriangleQuad,
+                        ];
+                        break;
+                }
 
-				switch (patternSet) {
-					case 'curves':
-						available = [
-							createPatternCircleNormal,
-							createPatternCircleLarge,
-							createPatternCircleLargeRing,
-							createPatternCircleOpposites,
-							//createPatternCircleQuad,
-							createPatternArcSolid,
-							createPatternArcRing,
-							createPatternArcRingTwin,
-							//createPatternArcQuartersAll,
-							createPatternArcQuartersOpposites,
-							createPatternLinesArc,
-						];
-						break;
-					case 'diagonals':
-						available = [
-							createPatternCornerTriangle,
-							createPatternTriangleSideNormal,
-							createPatternTriangleSideDouble,
-							createPatternTriangleSideDoubleRotate,
-							createPatternTriangleQuad,
-							createPatternArrow,
-							createPatternDiamondNormal,
-							createPatternDiamondLarge,
-							createPatternDiamondRing,
-							//createPatternLinesDiagonal,
-							createPatternLinesDiagonalPair,
-						];
-						break;
-					case 'lines':
-						available = [
-							createPatternLinesStraight,
-							createPatternLinesDiagonal,
-							createPatternLinesArc,
-						];
-						break;
-					case 'straights':
-						available = [
-							createPatternSquareNormal,
-							createPatternSquareGrid,
-							createPatternSquareOpposites,
-							createPatternRectangle,
-							createPatternLinesStraight,
-						];
-						break;
-					case 'triangles':
-						available = [
-							createPatternCornerTriangle,
-							createPatternTriangleSideNormal,
-							createPatternTriangleSideDouble,
-							createPatternTriangleSideDoubleRotate,
-							createPatternTriangleQuad,
-						];
-						break;
-				}
-
-				switch (mirrorType) {
-					case 'both':
+                switch (mirrorType) {
+                    case 'both':
                         available = available
                             .filter(x =>
                                 x == createPatternCircleNormal ||
                                 x == createPatternCircleLarge ||
                                 x == createPatternCircleLargeRing ||
                                 x == createPatternCircleOpposites ||
-								x == createPatternSquareNormal |
+                                x == createPatternSquareNormal |
                                 x == createPatternTriangleSideDouble ||
                                 x == createPatternDiamondNormal ||
                                 x == createPatternDiamondLarge ||
                                 x == createPatternDiamondRing);
-						break;
-					case 'horizontal':
-					case 'vertical':
+                        break;
+                    case 'horizontal':
+                    case 'vertical':
                         available = available
-							.filter(x =>
-								x == createPatternCircleNormal ||
-								x == createPatternCircleLarge ||
-								x == createPatternCircleLargeRing ||
+                            .filter(x =>
+                                x == createPatternCircleNormal ||
+                                x == createPatternCircleLarge ||
+                                x == createPatternCircleLargeRing ||
                                 x == createPatternCircleOpposites ||
-								x == createPatternSquareNormal ||
-								x == createPatternRectangle ||
-								x == createPatternTriangleSideNormal ||
-								x == createPatternTriangleSideDouble ||
+                                x == createPatternSquareNormal ||
+                                x == createPatternRectangle ||
+                                x == createPatternTriangleSideNormal ||
+                                x == createPatternTriangleSideDouble ||
                                 x == createPatternArrow ||
-								x == createPatternDiamondNormal ||
-								x == createPatternDiamondLarge ||
-								x == createPatternDiamondRing ||
+                                x == createPatternDiamondNormal ||
+                                x == createPatternDiamondLarge ||
+                                x == createPatternDiamondRing ||
                                 x == createPatternLinesStraight);
-						break;
+                        break;
 				}
 
 				if (available.length > 0) {
+					return available[~~(Math.random() * available.length)];
+				} else {
+					return null;
+				}
 
-					var chosen = available[~~(Math.random() * available.length)];
+			}
+
+			function createRandomPattern(colourSet, scale, patternSet, svg, container, x, y, s, gap = 0, repetition, overwrite, mirrorType) {
+
+				setRandomColours(colourSet);
+
+				var chosen = chooseRandomPattern(patternSet, mirrorType);
+
+                if (chosen != null) {
+
 					var id = '_' + x + '_' + y;
 
 					if (repetition) {
