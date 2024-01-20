@@ -19,7 +19,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script src="https://d3js.org/d3.v3.min.js"></script>
+		<script src="https://d3js.org/d3.v5.min.js"></script>
 		<link rel="preconnect" href="https://fonts.gstatic.com">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik&display=swap">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap">
@@ -44,7 +44,7 @@
 				<tr><td>C</td><td>r</td><td>e</td><td>a</td><td>t</td><td onclick="createWallpapers()">o</td><td>r</td></tr>
 			</table>
 
-			<table id="sizes">
+			<table>
 				<tr>
 					<th>Rows:</th>
 					<td><input type="number" value="6" id="rows" min="1"></td>
@@ -110,7 +110,6 @@
 							<option value="random" selected>Random Set</option>
 							<option value="procgen">Random</option>
 							<option value="" disabled>--------</option>
-							<!--<option value="autumn">Autumn</option>-->
 							<option value="marigold">Marigold</option>
 							<option value="maritime">Maritime</option>
 							<option value="melancholy">Melancholy</option>
@@ -129,10 +128,22 @@
 							<option value="mushroom">Mushroom</option>
 							<option value="mystic">Mystic</option>
 							<!--
-				<option value="test1">Test A</option>
-				<option value="test2">Test B</option>
-				<option value="test3">Test C</option>
-				-->
+							<option value="test1">Test A</option>
+							<option value="test2">Test B</option>
+							<option value="test3">Test C</option>
+							-->
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>Symmetry:</th>
+					<td>
+						<select id="mirror">
+							<option value="none" selected>No</option>
+							<!--<option value="random">Random</option>-->
+							<option value="horizontal">Horizontal</option>
+							<option value="vertical">Vertical</option>
+							<option value="both">Both</option>
 						</select>
 					</td>
 				</tr>
@@ -380,12 +391,52 @@
 
 				var rows = +d3.select('#rows').property('value');
 				var columns = +d3.select('#columns').property('value');
+				var rowsOriginal = rows;
+                var columnsOriginal = columns;
 				var unitSize = +d3.select('#unitSize').property('value');
 				var gapSize = +d3.select('#gapSize').property('value');
 				var patternSet = d3.select('#patternSet').property('value');
 				var colourSet = d3.select('#colourSet').property('value');
 				var maxScale = +d3.select('#maxScale').property('value');
-                var maxRepetition = +d3.select('#maxRepetition').property('value');
+				var maxRepetition = +d3.select('#maxRepetition').property('value');
+
+				var isMirrored = false;
+				var mirrorDirection = 'none';
+
+				if (d3.select('#mirror').property('value') != 'none') {
+					isMirrored = true;
+                    mirrorDirection = d3.select('#mirror').property('value');
+                }
+				if (mirrorDirection == 'random') {
+					switch (~~(Math.random() * 3)) {
+						case 0: mirrorDirection = 'horizontal'; break;
+                        case 1: mirrorDirection = 'vertical'; break;
+                        case 2: mirrorDirection = 'both'; break;
+					}
+				}
+
+                if (colourSet == 'random' || colourSet.length == 0) {
+                    var sets = [
+                        'marigold',
+                        'maritime',
+                        'melancholy',
+                        'memory',
+                        'memphis',
+                        'merlot',
+                        'miami',
+                        'midnight',
+                        'mondrian',
+                        'mono',
+                        'monochrome',
+                        'morning',
+                        'mountain',
+                        'mulberry',
+                        'mulch',
+                        'mushroom',
+                        'mystic',
+                    ];
+                    colourSet = sets[~~(Math.random() * sets.length)];
+                }
 
 				var outside = d3.select('#output').append('svg');
 				outside.attr('xmlns', 'http://www.w3.org/2000/svg');
@@ -400,6 +451,15 @@
 					.attr('y', 0)
 					.attr('width', columns * unitSize + (columns - 1) * gapSize)
 					.attr('height', rows * unitSize + (rows - 1) * gapSize);
+
+				if (isMirrored) {
+                    if (mirrorDirection == 'both' || mirrorDirection == 'horizontal') {
+						columns = Math.ceil(columns / 2);
+					}
+                    if (mirrorDirection == 'both' || mirrorDirection == 'vertical') {
+                        rows = Math.ceil(rows / 2);
+                    }
+				}
 
 				var grid = [];
 				for (var a = 0; a < rows; a++) {
@@ -421,6 +481,26 @@
 										if (grid[r][c] != 1) {
 											success = false;
 										}
+										if (mirrorDirection != 'none') {
+											switch (mirrorDirection) {
+												case 'both':
+													if ((columnsOriginal % 2 == 1 && c == columns - 1) ||
+														(rowsOriginal % 2 == 1 && r == rows - 1)) {
+                                                        success = false;
+                                                    }
+													break;
+												case 'horizontal':
+													if (columnsOriginal % 2 == 1 && c == columns - 1) {
+														success = false;
+													}
+													break;
+                                                case 'vertical':
+                                                    if (rowsOriginal % 2 == 1 && r == rows - 1) {
+                                                        success = false;
+                                                    }
+                                                    break;
+											}
+										}
 									}
 								}
 								if (success) {
@@ -436,28 +516,7 @@
 					}
 				}
 
-				if (colourSet == 'random' || colourSet.length == 0) {
-					var sets = [
-						'marigold',
-						'maritime',
-						'melancholy',
-						'memory',
-						'memphis',
-						'merlot',
-						'miami',
-						'midnight',
-						'mondrian',
-						'mono',
-						'monochrome',
-						'morning',
-						'mountain',
-						'mulberry',
-						'mulch',
-						'mushroom',
-						'mystic',
-					];
-					colourSet = sets[~~(Math.random() * sets.length)];
-				}
+				var inside = outside.append('g');
 
 				for (var a = 0; a < columns; a++) {
 					for (var b = 0; b < rows; b++) {
@@ -491,33 +550,90 @@
 									grid[b][a],
 									patternSet,
 									outside,
+									inside,
 									a * (unitSize + gapSize),
 									b * (unitSize + gapSize),
 									unitSize,
                                     gapSize,
-									repetition = true);
+									true,
+									false,
+									'none');
 							} else {
+								var mirrorType = 'none';
+                                if (mirrorDirection != 'none') {
+									switch (mirrorDirection) {
+										case 'both':
+                                            if (columnsOriginal % 2 == 1 && a == columns - 1) {
+                                                mirrorType = 'horizontal';
+											}
+                                            if (rowsOriginal % 2 == 1 && b == rows - 1) {
+                                                mirrorType = 'vertical';
+                                            }
+											if ((columnsOriginal % 2 == 1 && a == columns - 1) &&
+												(rowsOriginal % 2 == 1 && b == rows - 1)) {
+													mirrorType = 'both';
+											}
+											break;
+                                        case 'horizontal':
+                                            if (columnsOriginal % 2 == 1 && a == columns - 1) {
+                                                mirrorType = mirrorDirection;
+                                            }
+                                            break;
+                                        case 'vertical':
+                                            if (rowsOriginal % 2 == 1 && b == rows - 1) {
+                                                mirrorType = mirrorDirection;
+                                            }
+                                            break;
+                                    }
+								}
+
                                 createRandomPattern(
                                     colourSet,
                                     grid[b][a],
                                     patternSet,
-                                    outside,
+									outside,
+									inside,
                                     a * (unitSize + gapSize),
                                     b * (unitSize + gapSize),
-									unitSize + extraLength);
+									unitSize + extraLength,
+									0,
+									false,
+									false,
+                                    mirrorType);
 							}
 						}
 					}
 				}
 
-				switch (colourSet) {
-					case 'merlot':
-						outside.attr('fill', '#2C2C29');
-						break;
-					default:
-						outside.attr('fill', colours[0]);
-						break;
+				if (isMirrored) {
+					switch (mirrorDirection) {
+						case 'horizontal':
+							var duplicate = inside.clone(true);
+							duplicate.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',0) scale(-1,1)');
+							break;
+						case 'vertical':
+                            var duplicate = inside.clone(true);
+							duplicate.attr('transform', 'translate(0,' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(1,-1)');
+							break;
+						case 'both':
+							var duplicateTopRight = inside.clone(true);
+							duplicateTopRight.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',0) scale(-1,1)');
+                            var duplicateBottomLeft = inside.clone(true);
+							duplicateBottomLeft.attr('transform', 'translate(0,' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(1,-1)');
+                            var duplicateBottomRight = inside.clone(true);
+                            duplicateBottomRight.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(-1,-1)');
+							break;
+					}
 				}
+
+                switch (colourSet) {
+                    case 'merlot':
+                        outside.attr('fill', '#2C2C29');
+                        break;
+                    default:
+                        outside.attr('fill', colours[0]);
+                        break;
+                }
 
 				d3.select('#downloadSVG').style('display', null);
                 d3.select('#downloadPNG').style('display', null);
@@ -528,7 +644,7 @@
 				d3.selectAll('polygon').attr('shape-rendering', 'crispEdges');
 			}
 
-			function createRandomPattern(colourSet, scale, patternSet, svg, x, y, s, gap = 0, repetition = false, overwrite = false) {
+			function createRandomPattern(colourSet, scale, patternSet, svg, container, x, y, s, gap = 0, repetition, overwrite, mirrorType) {
 
 				setRandomColours(colourSet);
 
@@ -612,7 +728,7 @@
 					case 'triangles':
 						available = [
 							createPatternCornerTriangle,
-							//createPatternTriangleSideNormal,
+							createPatternTriangleSideNormal,
 							createPatternTriangleSideDouble,
 							createPatternTriangleSideDoubleRotate,
 							createPatternTriangleQuad,
@@ -620,57 +736,47 @@
 						break;
 				}
 
-				var chosen = available[~~(Math.random() * available.length)];
-				var id = '_' + x + '_' + y;
+				switch (mirrorType) {
+					case 'both':
+                        available = available
+                            .filter(x =>
+                                x == createPatternCircleNormal ||
+                                x == createPatternCircleLarge ||
+                                x == createPatternCircleLargeRing ||
+                                x == createPatternCircleOpposites ||
+								x == createPatternSquareNormal |
+                                x == createPatternTriangleSideDouble ||
+                                x == createPatternDiamondNormal ||
+                                x == createPatternDiamondLarge ||
+                                x == createPatternDiamondRing);
+						break;
+					case 'horizontal':
+					case 'vertical':
+                        available = available
+							.filter(x =>
+								x == createPatternCircleNormal ||
+								x == createPatternCircleLarge ||
+								x == createPatternCircleLargeRing ||
+                                x == createPatternCircleOpposites ||
+								x == createPatternSquareNormal ||
+								x == createPatternRectangle ||
+								x == createPatternTriangleSideNormal ||
+								x == createPatternTriangleSideDouble ||
+                                x == createPatternArrow ||
+								x == createPatternDiamondNormal ||
+								x == createPatternDiamondLarge ||
+								x == createPatternDiamondRing ||
+                                x == createPatternLinesStraight);
+						break;
+				}
 
-				if (repetition) {
+				if (available.length > 0) {
 
-                    var defs = svg.select('defs');
-                    defs
-                        .append('clipPath')
-                        .attr('id', 'clip' + id)
-                        .append('rect')
-                        .attr('x', 0)
-                        .attr('y', 0)
-                        .attr('width', s)
-						.attr('height', s);
-					var pattern = defs
-						.append('pattern')
-						.attr('id', 'pat' + id)
-						.attr('width', s + gap)
-						.attr('height', s + gap)
-						.attr('patternUnits', 'userSpaceOnUse');
+					var chosen = available[~~(Math.random() * available.length)];
+					var id = '_' + x + '_' + y;
 
-					var g = pattern
-						.append('g')
-						.attr('id', 'box' + id)
-						.attr('clip-path', 'clip' + id)
-                    g.attr('clip-path', 'url(#clip' + id + ')');
+					if (repetition) {
 
-					chosen(g, +s);
-
-					svg
-						.append('rect')
-						.attr('id', 'rept' + id)
-						.attr('x', x)
-						.attr('y', y)
-						.attr('width', (s + gap) * scale)
-                        .attr('height', (s + gap) * scale)
-						.attr('fill', 'url(#pat' + id + ')')
-						.on('click', function () {
-							var id = d3.select(this).attr('id').replace('rept', '');
-							d3.selectAll('#box' + id + ' *').remove();
-							var g = d3.select('#box' + id);
-							createRandomPattern(colourSet, scale, patternSet, g, x, y, s, 0, false, overwrite = true);
-							d3.event.stopPropagation();
-						});
-
-				} else {
-
-					var g;
-					if (overwrite) {
-						g = svg;
-					} else {
 						var defs = svg.select('defs');
 						defs
 							.append('clipPath')
@@ -680,18 +786,67 @@
 							.attr('y', 0)
 							.attr('width', s)
 							.attr('height', s);
-						g = svg.append('g');
-						g.attr('id', 'unit' + id);
-						g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
-						g.attr('clip-path', 'url(#clip' + id + ')');
-						g.on('click', function () {
-							d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
-							createRandomPattern(colourSet, scale, patternSet, g, x, y, s, 0, repetition, overwrite = true);
-							d3.event.stopPropagation();
-						});
-					}
-					chosen(g, +s);
+						var pattern = defs
+							.append('pattern')
+							.attr('id', 'pat' + id)
+							.attr('width', s + gap)
+							.attr('height', s + gap)
+							.attr('patternUnits', 'userSpaceOnUse');
 
+						var g = pattern
+							.append('g')
+							.attr('title', chosen.name)
+							.attr('id', 'box' + id)
+							.attr('clip-path', 'clip' + id)
+						g.attr('clip-path', 'url(#clip' + id + ')');
+
+						chosen(g, +s);
+
+						container
+							.append('rect')
+							.attr('id', 'rept' + id)
+							.attr('x', x)
+							.attr('y', y)
+							.attr('width', (s + gap) * scale)
+							.attr('height', (s + gap) * scale)
+							.attr('fill', 'url(#pat' + id + ')')
+							.on('click', function () {
+								var id = d3.select(this).attr('id').replace('rept', '');
+								d3.selectAll('#box' + id + ' *').remove();
+								var g = d3.select('#box' + id);
+								createRandomPattern(colourSet, scale, patternSet, svg, g, x, y, s, 0, false, true, mirrorType);
+								d3.event.stopPropagation();
+							});
+
+					} else {
+
+						var g;
+						if (overwrite) {
+							g = container;
+						} else {
+							var defs = svg.select('defs');
+							defs
+								.append('clipPath')
+								.attr('id', 'clip' + id)
+								.append('rect')
+								.attr('x', 0)
+								.attr('y', 0)
+								.attr('width', s)
+								.attr('height', s);
+							g = container.append('g');
+							g.attr('id', 'unit' + id);
+							g.attr('title', chosen.name)
+							g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
+							g.attr('clip-path', 'url(#clip' + id + ')');
+							g.on('click', function () {
+								d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
+								createRandomPattern(colourSet, scale, patternSet, svg, g, x, y, s, 0, repetition, true, mirrorType);
+								d3.event.stopPropagation();
+							});
+						}
+						chosen(g, +s, mirrorType);
+
+					}
 				}
 			}
 
@@ -756,7 +911,7 @@
 				}
 			}
 
-			function createPatternCircleOpposites(g, s) {
+			function createPatternCircleOpposites(g, s, mirrorType = 'none') {
 
 				var fill = colours[0];
 				g
@@ -783,7 +938,7 @@
 					.attr('r', s / 2)
 					.attr('fill', fill)
 
-				if (Math.random() > 0.5) {
+				if (mirrorType == 'none' && Math.random() > 0.5) {
 					g
 						.append('rect')
 						.attr('x', x2 - s / 2)
@@ -874,7 +1029,7 @@
 				}
 			}
 
-			function createPatternRectangle(g, s) {
+            function createPatternRectangle(g, s, mirrorType = 'none') {
 				var fill = colours[0];
 				g
 					.append('rect')
@@ -884,7 +1039,18 @@
 					.attr('height', s)
 					.attr('fill', fill);
 				fill = fill == colours[1] ? colours[0] : colours[1];
-				if (Math.random() > 0.5) {
+
+				var direction = Math.random() > 0.5 ? 'v' : 'h';
+				switch (mirrorType) {
+					case 'vertical':
+						direction = 'v';
+						break;
+					case 'horizontal':
+                        direction = 'h';
+						break;
+				}
+
+				if (direction == 'v') {
 					g
 						.append('rect')
 						.attr('x', 0)
@@ -929,19 +1095,20 @@
 					.attr('fill', colours[1]);
 			}
 
-			function createPatternTriangleSideNormal(g, s) {
-				createPatternTriangleSide(g, s, double = false, rotate = false);
+            function createPatternTriangleSideNormal(g, s, mirrorType = 'none') {
+				createPatternTriangleSide(g, s, mirrorType, double = false, rotate = false);
 			}
 
-			function createPatternTriangleSideDouble(g, s) {
-				createPatternTriangleSide(g, s, double = true, rotate = false);
+            function createPatternTriangleSideDouble(g, s) {
+                createPatternTriangleSide(g, s, 'none', double = true, rotate = false);
 			}
 
-			function createPatternTriangleSideDoubleRotate(g, s) {
-				createPatternTriangleSide(g, s, double = true, rotate = true);
+            function createPatternTriangleSideDoubleRotate(g, s) {
+                createPatternTriangleSide(g, s, 'none', double = true, rotate = true);
 			}
 
-			function createPatternTriangleSide(g, s, double = false, rotate = false) {
+			function createPatternTriangleSide(g, s, mirrorType = 'none', double = false, rotate = false) {
+
 				var fill = colours[0];
 				g
 					.append('rect')
@@ -961,6 +1128,14 @@
 					];
 
 				var start = ~~(Math.random() * 4);
+				switch (mirrorType) {
+					case 'horizontal':
+						start = Math.random() > 0.5 ? 0 : 2;
+						break;
+					case 'vertical':
+                        start = Math.random() > 0.5 ? 1 : 3;
+						break;
+				}
 
 				g
 					.append('polygon')
@@ -1025,7 +1200,7 @@
 				}
 			}
 
-            function createPatternArrow(g, s) {
+            function createPatternArrow(g, s, mirrorType = 'none') {
                 var fill = colours[0];
                 g
                     .append('rect')
@@ -1044,12 +1219,22 @@
 						s/2 + ',' + s/2 + ' ',
 						'0,' + s + ' ',
 						'0,' + s/2
-                    ];
+					];
+
+				var rotate = ~~(Math.random() * 4);
+                switch (mirrorType) {
+                    case 'horizontal':
+                        rotate = Math.random() > 0.5 ? 0 : 2;
+                        break;
+                    case 'vertical':
+                        rotate = Math.random() > 0.5 ? 1 : 3;
+                        break;
+                }
 
 				g
 					.append('g')
 					.attr('transform-origin', s/2 + ' ' + s/2)
-                    .attr('transform', 'rotate(' + (90*~~(Math.random() * 4)) + ')')
+                    .attr('transform', 'rotate(' + (90*rotate) + ')')
                     .append('polygon')
 					.attr('points', points.join(''))
                     .attr('fill', fill);
@@ -1221,7 +1406,7 @@
 				}
 			}
 
-			function createPatternLinesStraight(g, s) {
+            function createPatternLinesStraight(g, s, mirrorType = 'none') {
 				var fill = Math.random() > 0.5 ? colours[0] : colours[1];
 				g
 					.append('rect')
@@ -1234,24 +1419,32 @@
 
 				var thickness = s / lines;
 				var vertical = Math.random() > 0.5;
+                switch (mirrorType) {
+                    case 'horizontal':
+						vertical = false;
+                        break;
+                    case 'vertical':
+						vertical = true;
+                        break;
+                }
 
 				for (var a = 1; a < lines; a += 2) {
 					if (vertical) {
-						g
-							.append('rect')
-							.attr('x', 0)
-							.attr('y', s / lines * a)
-							.attr('width', s)
-							.attr('height', thickness)
-							.attr('fill', fill);
+                        g
+                            .append('rect')
+                            .attr('x', s / lines * a)
+                            .attr('y', 0)
+                            .attr('width', thickness)
+                            .attr('height', s)
+                            .attr('fill', fill);
 					} else {
-						g
-							.append('rect')
-							.attr('x', s / lines * a)
-							.attr('y', 0)
-							.attr('width', thickness)
-							.attr('height', s)
-							.attr('fill', fill);
+                        g
+                            .append('rect')
+                            .attr('x', 0)
+                            .attr('y', s / lines * a)
+                            .attr('width', s)
+                            .attr('height', thickness)
+                            .attr('fill', fill);
 					}
 				}
 			}

@@ -21,13 +21,13 @@ p {
 
 #initial,
 #heading {
-	padding: 0 5px 5px;
-	margin: 36px auto 20px !important;
-	font: normal 35px 'roboto slab', georgia, serif;
-	font-weight: 500;
-	text-align: center;
-	border-spacing: 0;
-	line-height: 35px;
+    padding: 0 5px 5px;
+    margin: 36px auto 20px !important;
+    font: normal 35px 'roboto slab', georgia, serif;
+    font-weight: 500;
+    text-align: center;
+    border-spacing: 0;
+    line-height: 35px;
 }
 
 #heading .x {
