@@ -110,28 +110,6 @@
 							<option value="random" selected>Random Set</option>
 							<option value="procgen">Random</option>
 							<option value="" disabled>--------</option>
-							<option value="marigold">Marigold</option>
-							<option value="maritime">Maritime</option>
-							<option value="melancholy">Melancholy</option>
-							<option value="memory">Memory</option>
-							<option value="memphis">Memphis</option>
-							<option value="merlot">Merlot</option>
-							<option value="miami">Miami</option>
-							<option value="midnight">Midnight</option>
-							<option value="mondrian">Mondrian</option>
-							<option value="mono">Mono</option>
-							<option value="monochrome">Monochrome</option>
-							<option value="morning">Morning</option>
-							<option value="mountain">Mountain</option>
-							<option value="mulberry">Mulberry</option>
-							<option value="mulch">Mulch</option>
-							<option value="mushroom">Mushroom</option>
-							<option value="mystic">Mystic</option>
-							<!--
-							<option value="test1">Test A</option>
-							<option value="test2">Test B</option>
-							<option value="test3">Test C</option>
-							-->
 						</select>
 					</td>
 				</tr>
@@ -180,6 +158,33 @@
             d3.select('#downloadPNG').style('display', 'none');
 			d3.select('#footer').style('display', 'none');
 			d3.select('#heading').style('display', 'none');
+
+			var colourSchemes = {
+				Marigold:   ['#FFB510', '#FFFFFF', '#000000'],
+				Maritime:   ['#FF444B', '#2AA4CF', '#FDF6EC'],
+                Melancholy: ['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496'],
+				Memory:     ['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA'],
+				Memphis:    ['#672394', '#F725A0', '#FAD141', '#0CB2C0', '#E8E6D9'],
+                Merlot:     ['#89363E', '#40262B', '#E7DFE0', '#100708'],
+				Miami:      ['#18C0EF', '#F14F7B', '#F7AA1C'],
+				Midnight:   ['#000000', '#254769', '#1B1C3B'],
+				Mondrian:   ['#FAC901', '#225095', '#DD0100', '#FFFFFF'],
+                Mono:       ['#FFFFFF', '#000000'],
+				Monochrome: ['#222222', '#777777', '#CCCCCC'],
+                Morning:    ['#F1C40F', '#E67E22', '#E74C3C', '#3498DB'],
+                Mountain:   ['#84B9AA', '#21462C', '#577D76', '#FFFFFF'],
+                Mulberry:   ['#D52439', '#110C1A', '#EACBAA'],
+				Mulch:      ['#606C38', '#283618', '#DDA15E', '#BC6C25'],
+                Mushroom:   ['#C55633', '#692D1B', '#838B69', '#C2BFA7'],
+                Mystic:     ['#EDAD7B', '#ED78AD', '#311B2E', '#2C86A6'],
+			};
+
+			for (var scheme in colourSchemes) {
+				d3.select('#colourSet')
+					.append('option')
+					.attr('value', scheme)
+					.text(scheme);
+			}
 
 			function colourHeading() {
 				d3.selectAll('#heading td').classed('x', function () { return Math.random() > 0.5 });
@@ -244,90 +249,19 @@
 			}
 
 			function createWallpapers() {
-				var sets = [
-					'marigold',
-					'maritime',
-					'melancholy',
-					'memory',
-					'memphis',
-					'merlot',
-					'miami',
-					'midnight',
-					'mondrian',
-					'mono',
-					'monochrome',
-					'morning',
-					'mountain',
-					'mulberry',
-					'mulch',
-					'mushroom',
-					'mystic',
-				];
-				for (var set of sets) {
-					console.log(set);
+                for (var set of colourSchemes) {
 					d3.select('#colourSet').property('value', set);
 					createPattern();
 					downloadImagePNG(set);
 				}
 			}
 
-            function setRandomColours(colourSet) {
-                switch (colourSet) {
-                	case 'procgen':
-                		colours = getRandomColours(procgen);
-                		break;
-                    case 'miami':
-                        colours = getRandomColours(['#18C0EF', '#F14F7B', '#F7AA1C']);
-                        break;
-                    case 'memory':
-                        colours = getRandomColours(['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA']);
-                        break;
-                    case 'maritime':
-                        colours = getRandomColours(['#FF444B', '#2AA4CF', '#FDF6EC']);
-                        break;
-                    case 'midnight':
-                        colours = getRandomColours(['#000', '#254769', '#1B1C3B']);
-                        break;
-                    case 'mulch':
-                    	colours = getRandomColours(['#606c38', '#283618', '#dda15e', '#bc6c25']);
-                    	break;
-                    case 'memphis':
-                    	colours = getRandomColours(['#672394', '#F725A0', '#FAD141', '#0CB2C0', '#E8E6D9']);
-                    	break;
-                    case 'merlot':
-                    	colours = getRandomColours(['#89363E', '#40262B', '#E7DFE0', '#100708']);
-                    	break;
-                    case 'mondrian':
-                    	colours = getRandomColours(['#FAC901', '#225095', '#DD0100', '#fff']);
-                    	break;
-                    case 'monochrome':
-                        colours = getRandomColours(['#222', '#777', '#ccc']);
-                        break;
-                    case 'mulberry':
-                        colours = getRandomColours(['#D52439', '#110C1A', '#EACBAA']);
-                        break;
-                    case 'marigold':
-                        colours = getRandomColours(['#FFB510', '#FFFFFF', '#000']);
-                        break;
-                    case 'morning':
-                        colours = getRandomColours(['#F1C40F', '#E67E22', '#E74C3C', '#3498DB']);
-                        break;
-                    case 'mountain':
-                        colours = getRandomColours(['#84B9AA', '#21462C', '#577D76', '#fff']);
-                        break;
-                    case 'mystic':
-                        colours = getRandomColours(['#EDAD7B', '#ED78AD', '#311B2E', '#2C86A6']);
-                        break;
-                    case 'melancholy':
-                        colours = getRandomColours(['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496']);
-						break;
-                    case 'mushroom':
-                        colours = getRandomColours(['#C55633', '#692D1B', '#838B69', '#C2BFA7']);
-						break;
-                    default:
-                        colours = getRandomColours(['white', 'black']);
-                        break;
-                }
+			function setRandomColours(colourSet) {
+				if (colourSet == 'procgen') {
+					colours = getRandomColours(procgen);
+				} else {
+                    colours = getRandomColours(colourSchemes[colourSet]);
+				}
 			}
 
             function getRandomColours(candidates) {
@@ -415,27 +349,9 @@
 					}
 				}
 
-                if (colourSet == 'random' || colourSet.length == 0) {
-                    var sets = [
-                        'marigold',
-                        'maritime',
-                        'melancholy',
-                        'memory',
-                        'memphis',
-                        'merlot',
-                        'miami',
-                        'midnight',
-                        'mondrian',
-                        'mono',
-                        'monochrome',
-                        'morning',
-                        'mountain',
-                        'mulberry',
-                        'mulch',
-                        'mushroom',
-                        'mystic',
-                    ];
-                    colourSet = sets[~~(Math.random() * sets.length)];
+				if (colourSet == 'random' || colourSet.length == 0) {
+					var keys = Object.keys(colourSchemes);
+                    colourSet = keys[~~(Math.random() * keys.length)];
                 }
 
 				var outside = d3.select('#output').append('svg');
