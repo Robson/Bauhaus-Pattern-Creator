@@ -441,16 +441,16 @@
 				var outside = d3.select('#output').append('svg');
 				outside.attr('xmlns', 'http://www.w3.org/2000/svg');
 				outside.attr('id', 'render');
-				outside.attr('width', columns * (unitSize + gapSize) + 'px');
-				outside.attr('height', rows * (unitSize + gapSize) + 'px');
+                outside.attr('width', ((columns * (unitSize + gapSize)) - gapSize) + 'px');
+				outside.attr('height', ((rows * (unitSize + gapSize)) - gapSize) + 'px');
 				outside.append('defs');
 
 				outside
 					.append('rect')
 					.attr('x', 0)
 					.attr('y', 0)
-					.attr('width', columns * unitSize + (columns - 1) * gapSize)
-					.attr('height', rows * unitSize + (rows - 1) * gapSize);
+                    .attr('width', ((columns * (unitSize + gapSize)) - gapSize))
+                    .attr('height', ((rows * (unitSize + gapSize)) - gapSize));
 
 				if (isMirrored) {
                     if (mirrorDirection == 'both' || mirrorDirection == 'horizontal') {
@@ -554,6 +554,7 @@
 									a * (unitSize + gapSize),
 									b * (unitSize + gapSize),
 									unitSize,
+									0,
                                     gapSize,
 									true,
 									false,
@@ -595,8 +596,9 @@
 									inside,
                                     a * (unitSize + gapSize),
                                     b * (unitSize + gapSize),
-									unitSize + extraLength,
-									0,
+									unitSize,
+									extraLength,
+									gapSize,
 									false,
 									false,
                                     mirrorType);
@@ -609,31 +611,26 @@
 					switch (mirrorDirection) {
 						case 'horizontal':
 							var duplicate = inside.clone(true);
-							duplicate.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',0) scale(-1,1)');
+							duplicate.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',0) scale(-1,1)');
 							break;
 						case 'vertical':
                             var duplicate = inside.clone(true);
-							duplicate.attr('transform', 'translate(0,' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(1,-1)');
+							duplicate.attr('transform', 'translate(0,' + +outside.attr('height').replace('px', '') + ') scale(1,-1)');
 							break;
 						case 'both':
 							var duplicateTopRight = inside.clone(true);
-							duplicateTopRight.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',0) scale(-1,1)');
+							duplicateTopRight.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',0) scale(-1,1)');
                             var duplicateBottomLeft = inside.clone(true);
-							duplicateBottomLeft.attr('transform', 'translate(0,' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(1,-1)');
+							duplicateBottomLeft.attr('transform', 'translate(0,' + +outside.attr('height').replace('px', '') + ') scale(1,-1)');
                             var duplicateBottomRight = inside.clone(true);
-                            duplicateBottomRight.attr('transform', 'translate(' + (+outside.attr('width').replace('px', '') - gapSize) + ',' + (+outside.attr('height').replace('px', '') - gapSize) + ') scale(-1,-1)');
+                            duplicateBottomRight.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',' + (+outside.attr('height').replace('px', '') - 0) + ') scale(-1,-1)');
 							break;
 					}
 				}
 
-                switch (colourSet) {
-                    case 'merlot':
-                        outside.attr('fill', '#2C2C29');
-                        break;
-                    default:
-                        outside.attr('fill', colours[0]);
-                        break;
-                }
+				inside.raise();
+
+                outside.attr('fill', colours[0]);
 
 				d3.select('#downloadSVG').style('display', null);
                 d3.select('#downloadPNG').style('display', null);
@@ -776,88 +773,69 @@
 
 			}
 
-			function createRandomPattern(colourSet, scale, patternSet, svg, container, x, y, s, gap = 0, repetition, overwrite, mirrorType) {
+			function createRandomPattern(colourSet, scale, patternSet, svg, container, x, y, s, extra, gap = 0, repetition, overwrite, mirrorType) {
 
 				setRandomColours(colourSet);
 
 				var chosen = chooseRandomPattern(patternSet, mirrorType);
-
                 if (chosen != null) {
 
-					var id = '_' + x + '_' + y;
+					var g = container;
 
-					if (repetition) {
+					if (!overwrite) {
 
-						var defs = svg.select('defs');
+                        var id = '_' + x + '_' + y;
+                        var defs = svg.select('defs');
+
 						defs
 							.append('clipPath')
 							.attr('id', 'clip' + id)
 							.append('rect')
 							.attr('x', 0)
 							.attr('y', 0)
-							.attr('width', s)
-							.attr('height', s);
-						var pattern = defs
-							.append('pattern')
-							.attr('id', 'pat' + id)
-							.attr('width', s + gap)
-							.attr('height', s + gap)
+							.attr('width', s + extra)
+							.attr('height', s + extra);
+
+                        var pattern = defs
+                            .append('pattern')
+                            .attr('id', 'pat' + id)
 							.attr('patternUnits', 'userSpaceOnUse');
+                        g = pattern
+                            .append('g')
+                            .attr('id', 'box' + id)
+                            .attr('clip-path', 'url(#clip' + id + ')');
 
-						var g = pattern
-							.append('g')
-							.attr('title', chosen.name)
-							.attr('id', 'box' + id)
-							.attr('clip-path', 'clip' + id)
-						g.attr('clip-path', 'url(#clip' + id + ')');
-
-						chosen(g, +s);
-
-						container
-							.append('rect')
-							.attr('id', 'rept' + id)
-							.attr('x', x)
-							.attr('y', y)
-							.attr('width', (s + gap) * scale)
-							.attr('height', (s + gap) * scale)
-							.attr('fill', 'url(#pat' + id + ')')
-							.on('click', function () {
-								var id = d3.select(this).attr('id').replace('rept', '');
-								d3.selectAll('#box' + id + ' *').remove();
-								var g = d3.select('#box' + id);
-								createRandomPattern(colourSet, scale, patternSet, svg, g, x, y, s, 0, false, true, mirrorType);
-								d3.event.stopPropagation();
-							});
-
-					} else {
-
-						var g;
-						if (overwrite) {
-							g = container;
+						if (repetition) {
+							pattern
+								.attr('width', s + gap)
+								.attr('height', s + gap);
 						} else {
-							var defs = svg.select('defs');
-							defs
-								.append('clipPath')
-								.attr('id', 'clip' + id)
-								.append('rect')
-								.attr('x', 0)
-								.attr('y', 0)
-								.attr('width', s)
-								.attr('height', s);
-							g = container.append('g');
-							g.attr('id', 'unit' + id);
-							g.attr('title', chosen.name)
-							g.attr('transform', 'translate(' + x + ' ' + y + ') scale(' + scale + ')');
-							g.attr('clip-path', 'url(#clip' + id + ')');
-							g.on('click', function () {
-								d3.selectAll('#unit' + d3.select(this).attr('id') + ' *').remove();
-								createRandomPattern(colourSet, scale, patternSet, svg, g, x, y, s, 0, repetition, true, mirrorType);
-								d3.event.stopPropagation();
-							});
+							pattern
+								.attr('x', x)
+								.attr('y', y)
+								.attr('width', (s + gap) * scale)
+								.attr('height', (s + gap) * scale);
+							g.attr('transform', 'scale(' + scale + ')');
 						}
-						chosen(g, +s, mirrorType);
+
+                        container
+                            .append('rect')
+                            .attr('x', x)
+                            .attr('y', y)
+                            .attr('width', (s + gap) * scale)
+                            .attr('height', (s + gap) * scale)
+                            .attr('fill', 'url(#pat' + id + ')')
+							.on('click', function () {
+                                var id = '_' + x + '_' + y;
+                                d3.selectAll('#box' + id + ' *').remove();
+                                var container = d3.select('#box' + id);
+                                createRandomPattern(colourSet, null, patternSet, null, container, null, null, s, extra, null, null, true, mirrorType);
+                                d3.event.stopPropagation();
+							});
 
 					}
+
+                    chosen(g, s + extra, mirrorType);
 				}
 			}
 
