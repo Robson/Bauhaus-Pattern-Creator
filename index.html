@@ -95,6 +95,7 @@
 						<select id="patternSet">
 							<option value="everything" selected>All</option>
 							<option value="" disabled>--------</option>
+							<option value="circles">Circles</option>
 							<option value="curves">Curves</option>
 							<option value="diagonals">Diagonals</option>
 							<option value="lines">Lines</option>
@@ -523,22 +524,29 @@
 					}
 				}
 
+				inside.attr('class', 'clickable');
+
 				if (isMirrored) {
 					switch (mirrorDirection) {
 						case 'horizontal':
 							var duplicate = inside.clone(true);
+							duplicate.attr('class', null);
 							duplicate.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',0) scale(-1,1)');
 							break;
 						case 'vertical':
-                            var duplicate = inside.clone(true);
+							var duplicate = inside.clone(true);
+                            duplicate.attr('class', null);
 							duplicate.attr('transform', 'translate(0,' + +outside.attr('height').replace('px', '') + ') scale(1,-1)');
 							break;
 						case 'both':
 							var duplicateTopRight = inside.clone(true);
+                            duplicateTopRight.attr('class', null);
 							duplicateTopRight.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',0) scale(-1,1)');
-                            var duplicateBottomLeft = inside.clone(true);
+							var duplicateBottomLeft = inside.clone(true);
+                            duplicateBottomLeft.attr('class', null);
 							duplicateBottomLeft.attr('transform', 'translate(0,' + +outside.attr('height').replace('px', '') + ') scale(1,-1)');
-                            var duplicateBottomRight = inside.clone(true);
+							var duplicateBottomRight = inside.clone(true);
+                            duplicateBottomRight.attr('class', null);
                             duplicateBottomRight.attr('transform', 'translate(' + +outside.attr('width').replace('px', '') + ',' + (+outside.attr('height').replace('px', '') - 0) + ') scale(-1,-1)');
 							break;
 					}
@@ -567,13 +575,16 @@
                     createPatternCircleOpposites,
                     createPatternSquareNormal,
                     createPatternSquareGrid,
-                    createPatternSquareOpposites,
+					createPatternSquareOpposites,
+                    createPatternSquareRepeating,
                     createPatternRectangle,
                     createPatternCornerTriangle,
                     createPatternTriangleSideNormal,
                     createPatternTriangleSideDouble,
                     createPatternTriangleSideDoubleRotate,
-                    createPatternTriangleQuad,
+					createPatternTriangleQuad,
+					createPatternTriangleOpposites,
+                    createPatternTriangleWindmill,
                     createPatternArrow,
                     createPatternDiamondNormal,
                     createPatternDiamondLarge,
@@ -590,6 +601,13 @@
                 ];
 
                 switch (patternSet) {
+                    case 'circles':
+                        available = [
+                            createPatternCircleNormal,
+                            createPatternCircleLarge,
+                            createPatternCircleLargeRing,
+                        ];
+                        break;
                     case 'curves':
                         available = [
                             createPatternCircleNormal,
@@ -611,7 +629,9 @@
                             createPatternTriangleSideNormal,
                             createPatternTriangleSideDouble,
                             createPatternTriangleSideDoubleRotate,
-                            createPatternTriangleQuad,
+							createPatternTriangleQuad,
+							createPatternTriangleOpposites,
+                            createPatternTriangleWindmill,
                             createPatternArrow,
                             createPatternDiamondNormal,
                             createPatternDiamondLarge,
@@ -621,7 +641,8 @@
                         ];
                         break;
                     case 'lines':
-                        available = [
+						available = [
+                            createPatternSquareRepeating,
                             createPatternLinesStraight,
                             createPatternLinesDiagonal,
                             createPatternLinesArc,
@@ -631,7 +652,8 @@
                         available = [
                             createPatternSquareNormal,
                             createPatternSquareGrid,
-                            createPatternSquareOpposites,
+							createPatternSquareOpposites,
+                            createPatternSquareRepeating,
                             createPatternRectangle,
                             createPatternLinesStraight,
                         ];
@@ -642,7 +664,9 @@
                             createPatternTriangleSideNormal,
                             createPatternTriangleSideDouble,
                             createPatternTriangleSideDoubleRotate,
-                            createPatternTriangleQuad,
+							createPatternTriangleQuad,
+							createPatternTriangleOpposites,
+                            createPatternTriangleWindmill,
                         ];
                         break;
                 }
@@ -843,6 +867,7 @@
 					.attr('r', s / 2)
 					.attr('fill', fill)
 
+				/*
 				if (mirrorType == 'none' && Math.random() > 0.5) {
 					g
 						.append('rect')
@@ -853,6 +878,7 @@
 						.attr('fill', fill);
 					fill = fill == colours[1] ? colours[0] : colours[1];
 				}
+				*/
 
 				g
 					.append('circle')
@@ -893,13 +919,13 @@
 					.attr('fill', fill);
 				fill = fill == colours[1] ? colours[0] : colours[1];
 				var offset = Math.random() > 0.5 ? 0 : 1;
-				for (var a = 0; a < 4; a++) {
-					for (var b = 0; b < 4; b++) {
+				for (var a = 0; a < lines; a++) {
+					for (var b = 0; b < lines; b++) {
 						if ((a + b) % 2 == offset) {
 							g
 								.append('rect')
-								.attr('x', s / 4 * a)
-								.attr('y', s / 4 * b)
+								.attr('x', s / lines * a)
+								.attr('y', s / lines * b)
 								.attr('width', s * 0.25)
 								.attr('height', s * 0.25)
 								.attr('fill', fill);
@@ -933,6 +959,25 @@
 					}
 				}
 			}
+
+            function createPatternSquareRepeating(g, s) {				
+                var rotate = ~~(Math.random() * 4);
+				var g = g.append('g');                
+				g
+					.attr('transform-origin', s / 2 + ' ' + s / 2)
+					.attr('transform', 'rotate(' + (90 * rotate) + ')');
+                var fill = colours[0];
+				for (var a = 0; a < lines; a++) {
+                    fill = fill == colours[1] ? colours[0] : colours[1];
+                    g
+                        .append('rect')
+                        .attr('x', s / lines * a)
+                        .attr('y', s / lines * a)
+                        .attr('width', s - (s / lines * a))
+                        .attr('height', s - (s / lines * a))
+                        .attr('fill', fill);
+                }
+            }
 
             function createPatternRectangle(g, s, mirrorType = 'none') {
 				var fill = colours[0];
@@ -1104,6 +1149,74 @@
 					}
 				}
 			}
+
+            function createPatternTriangleOpposites(g, s) {
+                var fill = colours[0];
+                g
+                    .append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', s)
+                    .attr('height', s)
+                    .attr('fill', fill);
+                fill = fill == colours[1] ? colours[0] : colours[1];
+
+                var rotate = ~~(Math.random() * 2);
+
+                var container = g
+                    .append('g')
+                    .attr('transform-origin', s / 2 + ' ' + s / 2)
+					.attr('transform', 'rotate(' + (90 * rotate) + ')');
+
+				container
+					.append('polygon')
+					.attr('points', '0,0 0,' + s / 2 + ' ' + s / 2 + ',0')
+                    .attr('fill', fill);
+                container
+                    .append('polygon')
+					.attr('points', s + ',' + s + ' ' + s + ',' + s / 2 + ' ' + s / 2 + ',' + s)
+                    .attr('fill', fill);
+			}
+
+            function createPatternTriangleWindmill(g, s) {
+
+                var fill = colours[0];
+                g
+                    .append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', s)
+                    .attr('height', s)
+                    .attr('fill', fill);
+                fill = fill == colours[1] ? colours[0] : colours[1];
+
+                var points =
+                    [
+                        '0,0 ',
+                        (s / 2) + ',0 ',
+                        (s / 2) + ',' + (s / 2) + ' ',
+                        '0,' + (s / 2) + ' '
+                    ];
+
+				var start = 0;
+
+				var locations = [
+					[0, 0],
+					[0, s / 2],
+                    [s / 2, s / 2],
+                    [s / 2, 0]
+				]
+
+				for (var location of locations) {
+                    g
+						.append('polygon')
+                        .attr('transform', 'translate(' + location[0] + ' ' + location[1] + ')')
+                        .attr('points', points[start] + points[(start + 1) % 4] + points[(start + 2) % 4])
+						.attr('fill', fill);
+					start += 3;
+					start %= 4;
+                }
+            }
 
             function createPatternArrow(g, s, mirrorType = 'none') {
                 var fill = colours[0];

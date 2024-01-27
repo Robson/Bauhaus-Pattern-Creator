@@ -17,6 +17,10 @@ p {
 	padding: 5px;
 }
 
+.clickable {
+	cursor: help;
+}
+
 /***** HEADING *****/
 
 #initial,
