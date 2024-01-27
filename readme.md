@@ -3,6 +3,7 @@
 ## Table of Contents
 
  * [Explanation](#explanation)
+ * [Example](#example)
  * [Live Version](#live-version)
  * [Compatibility](#compatibility)
  * [Testing](#testing) 
@@ -13,6 +14,10 @@
 ## Explanation
 
 An interactive webpage for creating images in the Bauhaus pattern style. You can change the size, colours, shapes, etc. The generated images can be download as SVGs.
+
+## Example
+
+![Example output](https://raw.githubusercontent.com/Robson/Bauhaus-Pattern-Creator/main/example.png)
 
 ## Live Version
 
