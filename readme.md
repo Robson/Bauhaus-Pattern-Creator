@@ -13,7 +13,7 @@
  
 ## Explanation
 
-An interactive webpage for creating images in the Bauhaus pattern style. You can change the size, colours, shapes, etc. The generated images can be download as SVGs.
+An interactive webpage for creating images in the Bauhaus pattern style. You can change the size, colours, shapes, etc. The generated images can be download as PNGs or SVGs.
 
 ## Example
 
