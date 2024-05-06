@@ -93,7 +93,9 @@
 					<th>Shapes:</th>
 					<td>
 						<select id="patternSet">
-							<option value="everything" selected>All</option>
+							<option value="all" selected>All</option>
+							<option value="some">Some</option>
+							<option value="one">One</option>
 							<option value="" disabled>--------</option>
 							<option value="circles">Circles</option>
 							<option value="curves">Curves</option>
@@ -151,6 +153,7 @@
 
 			const lines = 4;
 			var colours = ['black', 'white'];
+			var shapesAvailable = [];
 			var procgen = [];
 
 			setInterval(function () { colourHeading(); }, 60 * 1000);
@@ -177,6 +180,7 @@
                 Mulberry:   ['#D52439', '#110C1A', '#EACBAA'],
 				Mulch:      ['#606C38', '#283618', '#DDA15E', '#BC6C25'],
                 Mushroom:   ['#C55633', '#692D1B', '#838B69', '#C2BFA7'],
+                Muted:      ['#EFDBB8', '#A2A48E', '#C4BDA1', '#DD9E69', '#323429'],
                 Mystic:     ['#EDAD7B', '#ED78AD', '#311B2E', '#2C86A6'],
 			};
 
@@ -321,6 +325,7 @@
 			function createPattern() {
 
 				makeRandomColourScheme();
+				shapesAvailable = [];
 
 				d3.selectAll('svg').remove();
 
@@ -601,6 +606,23 @@
                 ];
 
                 switch (patternSet) {
+                	case 'one':
+                		if (shapesAvailable.length == 0) {
+							shapesAvailable = [available[~~(Math.random() * available.length)]];
+                		}
+                		available = shapesAvailable.slice(0);
+                		break;
+                	case 'some':
+                		if (shapesAvailable.length == 0) {
+                			shapesAvailable = available.slice(0);
+							for (let i = shapesAvailable.length - 1; i > 0; i--) {
+								const j = Math.floor(Math.random() * (i + 1));
+								[shapesAvailable[i], shapesAvailable[j]] = [shapesAvailable[j], shapesAvailable[i]];
+							}
+							shapesAvailable = shapesAvailable.slice(0, 3 + ~~(Math.random() * 2));
+						}
+						available = shapesAvailable.slice(0);
+                		break;
                     case 'circles':
                         available = [
                             createPatternCircleNormal,
@@ -960,9 +982,9 @@
 				}
 			}
 
-            function createPatternSquareRepeating(g, s) {				
+            function createPatternSquareRepeating(g, s) {
                 var rotate = ~~(Math.random() * 4);
-				var g = g.append('g');                
+				var g = g.append('g');
 				g
 					.attr('transform-origin', s / 2 + ' ' + s / 2)
 					.attr('transform', 'rotate(' + (90 * rotate) + ')');
