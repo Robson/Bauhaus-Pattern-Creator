@@ -165,23 +165,23 @@
 
 			var colourSchemes = {
 				Marigold:   ['#FFB510', '#FFFFFF', '#000000'],
-				Maritime:   ['#FF444B', '#2AA4CF', '#FDF6EC'],
+				Maritime:   [['#FF444B', '#2AA4CF'], '#FDF6EC'],
                 Melancholy: ['#96371A', '#E2832B', '#312E30', '#A6A9B7', '#647496'],
 				Memory:     ['#8A4B42', '#84785E', '#D1CECC', '#B4B4BA'],
-				Memphis:    ['#672394', '#F725A0', '#FAD141', '#0CB2C0', '#E8E6D9'],
+				Memphis:    ['#672394', ['#F725A0', '#0CB2C0'], '#FAD141', '#E8E6D9'],
                 Merlot:     ['#89363E', '#40262B', '#E7DFE0', '#100708'],
 				Miami:      ['#18C0EF', '#F14F7B', '#F7AA1C'],
 				Midnight:   ['#000000', '#254769', '#1B1C3B'],
 				Mix:		['#DF0000', '#F98E12', '#FDEF2A', '#1B8224', '#2449FC', '#750087'],
-				Mondrian:   ['#FAC901', '#225095', '#DD0100', '#FFFFFF'],
+				Mondrian:   [['#FAC901', '#225095', '#DD0100'], '#FFFFFF'],
                 Mono:       ['#FFFFFF', '#000000'],
 				Monochrome: ['#222222', '#777777', '#CCCCCC'],
                 Morning:    ['#F1C40F', '#E67E22', '#E74C3C', '#3498DB'],
                 Mountain:   ['#84B9AA', '#21462C', '#577D76', '#FFFFFF'],
-                Move:		['#69CFF9', '#F2AAB9', '#FFFFFF'],
+                Move:		[['#69CFF9', '#F2AAB9'], '#FFFFFF'],
                 Mulberry:   ['#D52439', '#110C1A', '#EACBAA'],
 				Mulch:      ['#606C38', '#283618', '#DDA15E', '#BC6C25'],
-				Multi:		['#D1006F', '#9A4D96', '#1534A8'],
+				Multi:		[['#D1006F', '#1534A8'], '#9A4D96'],
                 Mushroom:   ['#C55633', '#692D1B', '#838B69', '#C2BFA7'],
                 Muted:      ['#EFDBB8', '#A2A48E', '#C4BDA1', '#DD9E69', '#323429'],
                 Mystic:     ['#EDAD7B', '#ED78AD', '#311B2E', '#2C86A6'],
@@ -273,10 +273,16 @@
 			}
 
             function getRandomColours(candidates) {
+            	var colours = candidates.slice(0);
+            	for (var a = 0; a < colours.length; a++) {
+            		if (Array.isArray(colours[a])) {
+            			colours[a] = colours[a][~~(Math.random() * colours[a].length)];
+            		}
+            	}
                 var first = '', second = '';
                 do {
-                    first = candidates[~~(Math.random() * candidates.length)];
-                    second = candidates[~~(Math.random() * candidates.length)];
+                    first = colours[~~(Math.random() * colours.length)];
+                    second = colours[~~(Math.random() * colours.length)];
                 } while (first == second);
                 return [first, second];
             }
